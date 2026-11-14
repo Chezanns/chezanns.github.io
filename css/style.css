@@ -232,3 +232,5 @@ main,.footer{overflow-x:clip}
 .recap__spice{margin:0;font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
 .recap__spice .chili{width:20px;height:20px}
 @media (max-width:760px){.spice-mini__title{flex-basis:100%}}
+.modal__title{padding-right:44px}
+.recap__deposit strong{white-space:nowrap}
