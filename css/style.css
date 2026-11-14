@@ -215,20 +215,21 @@ a:hover{color:var(--red-dark)}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none !important}}
 main,.footer{overflow-x:clip}
 
-/* Niveau d'épices (compact, sous les Classiques) */
-.spice-mini{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--border);border-radius:0}
-.spice-mini__title{font-weight:800;font-size:15px;margin-right:4px}
-.menu .spice-mini__opt{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:5px 16px 5px 10px;white-space:nowrap;position:relative;border:1.5px solid #EBD5BB;border-radius:999px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
-.menu .spice-mini__opt:hover{border-color:var(--border)}
-.spice-mini__opt input{position:absolute;opacity:0;width:1px;height:1px}
-.menu .spice-mini__opt:has(input:checked){border-color:#D62828;background:#FFF0E8;color:#8E1620}
-.menu .spice-mini__opt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
-.spice-mini__ic{display:inline-flex;gap:0}
-.chili{width:18px;height:18px}
-.spice-mini__ic--off .chili{filter:grayscale(1);opacity:.4}
-.spice-mini.is-missing{animation:spice-shake .35s}
-.menu .spice-mini.is-missing .spice-mini__opt{border-color:#D62828}
+/* Niveau d'épices (dans la fenêtre de commande) */
+.spice-pick{margin:0;padding:0;border:0;min-width:0}
+.spice-pick legend{padding:0;margin-bottom:8px;font-weight:700;font-size:15px}
+.spice-pick__opts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.spice-pick__opt{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:8px 4px;border:1.5px solid #D8BFA2;border-radius:14px;background:#fff;font-size:13px;font-weight:700;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.spice-pick__opt:hover{border-color:var(--border)}
+.spice-pick__opt input{position:absolute;opacity:0;width:1px;height:1px}
+.spice-pick__opt:has(input:checked){border-color:#D62828;background:#FFF0E8;color:#8E1620;box-shadow:0 0 0 2px rgba(214,40,40,.15)}
+.spice-pick__opt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
+.spice-pick__ic{display:inline-flex;height:20px}
+.chili{width:20px;height:20px}
+.spice-pick__ic--off .chili{filter:grayscale(1);opacity:.4}
+.spice-pick.is-missing{animation:spice-shake .35s}
+.spice-pick.is-missing .spice-pick__opt{border-color:#D62828}
 @keyframes spice-shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.recap__spice{margin:0;font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
-.recap__spice .chili{width:20px;height:20px}
-@media (max-width:760px){.spice-mini__title{flex-basis:100%}}
+@media (max-width:480px){.spice-pick__opts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.modal__title{padding-right:44px}
+.recap__deposit strong{white-space:nowrap}

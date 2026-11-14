@@ -36,7 +36,6 @@
   function plural(n, one, many) { return n + " " + (n > 1 ? many : one); }
 
   // ── Niveau d'épices ──────────────────────────────────────
-  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien !"];
   function getSpice() {
     var r = $('input[name="spice"]:checked');
     return r ? Number(r.value) : null;
@@ -151,13 +150,6 @@
       li.textContent = c.parentNode.textContent.trim();
       list.appendChild(li);
     });
-    var spice = getSpice() || 0;
-    var chilis = "";
-    for (var i = 0; i < Math.max(1, spice); i++) {
-      chilis += '<svg class="chili"' + (spice ? "" : ' style="filter:grayscale(1);opacity:.4"') + ' aria-hidden="true"><use href="#chili"/></svg>';
-    }
-    $("#recap-spice").innerHTML = chilis + "<span>" + SPICE_LABELS[spice] + "</span>";
-
     var quote = isQuote();
     $("#qty-wrap").hidden = quote;
     $("#recap-money").hidden = quote;
@@ -185,15 +177,6 @@
 
   $("#cartbar-go").addEventListener("click", function () {
     if (!state.box || !selectedItems().length) return;
-    if (getSpice() === null) {
-      var sp = $("#spice");
-      sp.classList.remove("is-missing");
-      void sp.offsetWidth; // relance l'animation
-      sp.classList.add("is-missing");
-      sp.scrollIntoView({ behavior: "smooth", block: "center" });
-      toast("Choisissez le niveau d'épices de votre box.");
-      return;
-    }
     var min = addDays(parisToday(), Number(C.LEAD_DAYS || 2));
     var dateInput = form.elements.pickup_date;
     dateInput.min = min;
@@ -224,6 +207,14 @@
     if (!f.customer_name.value.trim()) return showError("Indiquez votre prénom et votre nom.");
     if (phoneDigits.length < 9) return showError("Indiquez un numéro de téléphone valide.");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.value.trim())) return showError("Indiquez une adresse e-mail valide.");
+    if (getSpice() === null) {
+      var sp = $("#spice");
+      sp.classList.remove("is-missing");
+      void sp.offsetWidth; // relance l'animation
+      sp.classList.add("is-missing");
+      return showError("Choisissez le niveau d'épices.");
+    }
+    $("#spice").classList.remove("is-missing");
     if (isQuote() && !(Number(f.guests.value) > 0)) return showError("Indiquez le nombre de personnes.");
     if (!f.pickup_date.value) return showError("Choisissez une date.");
     if (f.pickup_date.value < f.pickup_date.min) return showError("La date doit être au plus tôt le " + new Date(f.pickup_date.min + "T12:00:00").toLocaleDateString("fr-FR") + ".");

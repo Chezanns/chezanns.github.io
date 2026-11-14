@@ -137,13 +137,6 @@
             <label><input type="checkbox" value="verrine-crudites" data-univers="classique"> Verrine de crudités</label>
           </div>
         </div>
-        <div class="spice-mini" id="spice" role="radiogroup" aria-labelledby="spice-title">
-          <span class="spice-mini__title" id="spice-title">Niveau d'épices :</span>
-          <label class="spice-mini__opt"><input type="radio" name="spice" value="0"><span class="spice-mini__ic spice-mini__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
-          <label class="spice-mini__opt"><input type="radio" name="spice" value="1"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Peu épicé</label>
-          <label class="spice-mini__opt"><input type="radio" name="spice" value="2"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Épicé</label>
-          <label class="spice-mini__opt"><input type="radio" name="spice" value="3"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça chauffe bien</label>
-        </div>
       </fieldset>
 
       <fieldset class="menu menu--caraibes" data-univers="caraibes">
@@ -239,7 +232,6 @@
         </div>
       </div>
       <ul class="recap__items" id="recap-items"></ul>
-      <p class="recap__spice" id="recap-spice"></p>
       <div class="recap__money" id="recap-money">
         <div><span>Total</span><span id="recap-total">—</span></div>
         <div class="recap__deposit"><span>Acompte à payer maintenant (<span id="recap-pct"></span> %)</span><strong id="recap-deposit">—</strong></div>
@@ -247,6 +239,16 @@
       </div>
       <p class="recap__quote" id="recap-quote" hidden>La Box Caraïbes est préparée sur devis : envoyez votre demande, Annie vous recontacte rapidement avec un prix.</p>
     </div>
+
+    <fieldset class="spice-pick" id="spice">
+      <legend>Niveau d'épices *</legend>
+      <div class="spice-pick__opts">
+        <label class="spice-pick__opt"><input type="radio" name="spice" value="0"><span class="spice-pick__ic spice-pick__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
+        <label class="spice-pick__opt"><input type="radio" name="spice" value="1"><span class="spice-pick__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Peu épicé</label>
+        <label class="spice-pick__opt"><input type="radio" name="spice" value="2"><span class="spice-pick__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Épicé</label>
+        <label class="spice-pick__opt"><input type="radio" name="spice" value="3"><span class="spice-pick__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça chauffe bien</label>
+      </div>
+    </fieldset>
 
     <div class="fields">
       <label>Prénom et nom *<input name="customer_name" autocomplete="name" required maxlength="80"></label>
