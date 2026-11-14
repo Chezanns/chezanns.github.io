@@ -32,6 +32,7 @@ create table if not exists public.orders (
   box_name          text not null,
   qty               int  not null default 1 check (qty between 1 and 10),
   items             text[] not null default '{}',
+  spice             smallint not null default 0 check (spice between 0 and 3), -- 0 pas épicé → 3 ça chauffe
   customer_name     text not null,
   phone             text not null,
   email             text not null,
@@ -47,6 +48,7 @@ create table if not exists public.orders (
   status            text not null default 'attente_paiement'
                     check (status in ('attente_paiement','confirmee','prete','recuperee','devis','devis_traite','annulee'))
 );
+alter table public.orders add column if not exists spice smallint not null default 0 check (spice between 0 and 3);
 create index if not exists orders_pickup_idx on public.orders (pickup_date, pickup_slot);
 
 -- Qui a accès au tableau de bord

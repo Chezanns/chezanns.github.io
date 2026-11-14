@@ -35,11 +35,22 @@
     var t = $("#toast"); t.textContent = msg; t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2600);
   }
+  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien"];
+  function chilis(level) {
+    level = Number(level) || 0;
+    var s = "";
+    for (var i = 0; i < Math.max(1, level); i++) s += '<svg class="chili' + (level ? "" : " chili--off") + '" aria-hidden="true"><use href="#chili"/></svg>';
+    return s;
+  }
+  function spiceBadge(level) {
+    level = Number(level) || 0;
+    return '<span class="badge badge--spice badge--spice' + level + '">' + chilis(level) + SPICE_LABELS[level] + "</span>";
+  }
   function telHref(p) { return "tel:" + String(p).replace(/[^\d+]/g, ""); }
 
   // ── Données ─────────────────────────────────────────────
   function demoData() {
-    var t = today();
+    var t = today(), n = 0;
     var o = function (d, slot, box, qty, name, phone, items, status, extra) {
       var price = { decouverte: 3000, signature: 6500, prestige: 12000 }[box] || null;
       return Object.assign({
@@ -48,7 +59,7 @@
         box_name: { decouverte: "Box Découverte", signature: "Box Signature", prestige: "Box Prestige", caraibes: "Box Caraïbes" }[box],
         qty: qty, customer_name: name, phone: phone, email: "client@exemple.fr", items: items, status: status,
         total_cents: price ? price * qty : null, deposit_cents: price ? Math.round(price * qty * 0.3) : null,
-        deposit_paid: !!price, notes: null, guests: null
+        deposit_paid: !!price, notes: null, guests: null, spice: [2, 0, 0, 3, 1, 2, 2][n++ % 7]
       }, extra || {});
     };
     return [
@@ -160,7 +171,7 @@
 
   function orderCard(o) {
     var cls = o.status === "prete" ? " is-ready" : (o.status === "recuperee" || o.status === "devis_traite") ? " is-done" : "";
-    var badges = "";
+    var badges = spiceBadge(o.spice);
     if (o.status === "devis" || o.status === "devis_traite") {
       badges += '<span class="badge badge--quote">' + (o.status === "devis" ? "Devis à faire" : "Devis traité") + " · " + esc(o.guests) + " pers.</span>";
     } else {
@@ -197,14 +208,19 @@
     $("#prep-sub").textContent = "Box " + labels[tab] + ", hors box déjà prêtes.";
     var byBox = {}, byItem = {};
     toPrep.forEach(function (o) {
-      byBox[o.box_name] = (byBox[o.box_name] || 0) + o.qty;
+      var key = o.box_name + "|" + (Number(o.spice) || 0);
+      byBox[key] = (byBox[key] || 0) + o.qty;
       var pieces = (PIECES[o.box_id] || 0) * o.qty;
       var n = (o.items || []).length;
       if (pieces && n) (o.items || []).forEach(function (i) { byItem[i] = (byItem[i] || 0) + pieces / n; });
     });
-    var boxes = Object.keys(byBox);
+    var boxes = Object.keys(byBox).sort();
     $("#prep-boxes").innerHTML = boxes.length
-      ? boxes.map(function (k) { return '<div class="prep__row"><span>' + esc(k) + "</span><b>" + byBox[k] + "</b></div>"; }).join("")
+      ? boxes.map(function (k) {
+          var parts = k.split("|"), lvl = Number(parts[1]);
+          return '<div class="prep__row"><span class="prep__box">' + esc(parts[0]) +
+            '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + "</small></span><b>" + byBox[k] + "</b></div>";
+        }).join("")
       : '<p class="prep__sub">Tout est prêt, bravo !</p>';
     var items = Object.keys(byItem).sort(function (a, b) { return byItem[b] - byItem[a]; });
     $("#prep-items").innerHTML = items.length

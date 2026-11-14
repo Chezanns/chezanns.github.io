@@ -35,6 +35,16 @@
   }
   function plural(n, one, many) { return n + " " + (n > 1 ? many : one); }
 
+  // ── Niveau d'épices ──────────────────────────────────────
+  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien !"];
+  function getSpice() {
+    var r = $('input[name="spice"]:checked');
+    return r ? Number(r.value) : null;
+  }
+  $$('input[name="spice"]').forEach(function (r) {
+    r.addEventListener("change", function () { $("#spice").classList.remove("is-missing"); });
+  });
+
   // ── Choix de la box ──────────────────────────────────────
   function boxFromCard(card) {
     return {
@@ -141,6 +151,13 @@
       li.textContent = c.parentNode.textContent.trim();
       list.appendChild(li);
     });
+    var spice = getSpice() || 0;
+    var chilis = "";
+    for (var i = 0; i < Math.max(1, spice); i++) {
+      chilis += '<svg class="chili"' + (spice ? "" : ' style="filter:grayscale(1);opacity:.4"') + ' aria-hidden="true"><use href="#chili"/></svg>';
+    }
+    $("#recap-spice").innerHTML = chilis + "<span>" + SPICE_LABELS[spice] + "</span>";
+
     var quote = isQuote();
     $("#qty-wrap").hidden = quote;
     $("#recap-money").hidden = quote;
@@ -168,6 +185,15 @@
 
   $("#cartbar-go").addEventListener("click", function () {
     if (!state.box || !selectedItems().length) return;
+    if (getSpice() === null) {
+      var sp = $("#spice");
+      sp.classList.remove("is-missing");
+      void sp.offsetWidth; // relance l'animation
+      sp.classList.add("is-missing");
+      sp.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast("Choisissez le niveau d'épices de votre box.");
+      return;
+    }
     var min = addDays(parisToday(), Number(C.LEAD_DAYS || 2));
     var dateInput = form.elements.pickup_date;
     dateInput.min = min;
@@ -211,6 +237,7 @@
       box_id: state.box.id,
       qty: isQuote() ? 1 : state.qty,
       items: selectedItems().map(function (c) { return c.value; }),
+      spice: getSpice(),
       customer_name: f.customer_name.value.trim(),
       phone: f.phone.value.trim(),
       email: f.email.value.trim(),
@@ -254,6 +281,7 @@
 
   function resetAll() {
     checks.forEach(function (c) { c.checked = false; c.disabled = false; });
+    $$('input[name="spice"]').forEach(function (r) { r.checked = false; });
     cards.forEach(function (c) { c.classList.remove("is-selected"); $(".pill", c).setAttribute("aria-pressed", "false"); });
     $(".menu--classique").classList.remove("is-locked");
     state.box = null; state.qty = 1;

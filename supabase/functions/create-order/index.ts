@@ -82,12 +82,17 @@ Deno.serve(async (req) => {
     if (box.only_univers && items.some((i) => i.univers !== box.only_univers)) {
       return fail("Cette box se compose uniquement de mignardises Caraïbes.");
     }
+    // Niveau d'épices : 0 pas épicé, 1 peu épicé, 2 épicé, 3 ça chauffe bien
+    const spice = Number(b.spice);
+    if (!Number.isInteger(spice) || spice < 0 || spice > 3) return fail("Choisissez le niveau d'épices.");
+    const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien"];
+
     // On garde l'ordre choisi par le client
     const itemNames = ids.map((id) => items.find((i) => i.id === id)!.name);
 
     const ref = makeRef();
     const base = {
-      ref, box_id: box.id, box_name: box.name, items: itemNames,
+      ref, box_id: box.id, box_name: box.name, items: itemNames, spice,
       customer_name, phone, email, notes: notes || null, pickup_date, pickup_slot,
     };
 
@@ -121,7 +126,7 @@ Deno.serve(async (req) => {
           unit_amount: deposit_cents,
           product_data: {
             name: `Acompte ${DEPOSIT_PERCENT} % — ${box.name} × ${qty}`,
-            description: `Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref} · Solde de ${((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",")} € à régler au retrait`,
+            description: `${SPICE_LABELS[spice]} · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref} · Solde de ${((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",")} € à régler au retrait`,
           },
         },
       }],
