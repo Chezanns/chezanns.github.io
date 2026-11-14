@@ -137,6 +137,13 @@
             <label><input type="checkbox" value="verrine-crudites" data-univers="classique"> Verrine de crudités</label>
           </div>
         </div>
+        <div class="spice-mini" id="spice" role="radiogroup" aria-labelledby="spice-title">
+          <span class="spice-mini__title" id="spice-title">Niveau d'épices :</span>
+          <label class="spice-mini__opt"><input type="radio" name="spice" value="0"><span class="spice-mini__ic spice-mini__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
+          <label class="spice-mini__opt"><input type="radio" name="spice" value="1"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Peu épicé</label>
+          <label class="spice-mini__opt"><input type="radio" name="spice" value="2"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Épicé</label>
+          <label class="spice-mini__opt"><input type="radio" name="spice" value="3"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça chauffe bien</label>
+        </div>
       </fieldset>
 
       <fieldset class="menu menu--caraibes" data-univers="caraibes">
@@ -154,32 +161,6 @@
       </fieldset>
     </div>
 
-    <fieldset class="spice" id="spice">
-      <legend>Niveau d'épices</legend>
-      <p class="spice__intro">Comment aimez-vous vos mignardises ?</p>
-      <div class="spice__options">
-        <label class="spice__opt">
-          <input type="radio" name="spice" value="0">
-          <span class="spice__chilis spice__chilis--none"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>
-          <span class="spice__label">Pas épicé</span>
-        </label>
-        <label class="spice__opt">
-          <input type="radio" name="spice" value="1">
-          <span class="spice__chilis"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>
-          <span class="spice__label">Peu épicé</span>
-        </label>
-        <label class="spice__opt">
-          <input type="radio" name="spice" value="2">
-          <span class="spice__chilis"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>
-          <span class="spice__label">Épicé</span>
-        </label>
-        <label class="spice__opt">
-          <input type="radio" name="spice" value="3">
-          <span class="spice__chilis"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>
-          <span class="spice__label">Ça chauffe bien !</span>
-        </label>
-      </div>
-    </fieldset>
   </section>
 
   <!-- (Rubrique Spécial Noël à ajouter ici) -->
