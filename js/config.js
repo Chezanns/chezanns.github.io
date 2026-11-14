@@ -3,8 +3,8 @@
 // ─────────────────────────────────────────────────────────────
 window.CHEZ_ANNS_CONFIG = {
   // Supabase → Project Settings → API
-  SUPABASE_URL: "https://VOTRE-PROJET.supabase.co",
-  SUPABASE_ANON_KEY: "VOTRE_CLE_ANON_PUBLIQUE",
+  SUPABASE_URL: "https://qkrxzqfuimhuraxnccja.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrcnh6cWZ1aW1odXJheG5jY2phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ2ODQ2NzUsImV4cCI6MjExMDI2MDY3NX0.g4YDwszpNZvH5c_NQOBoZtSMFhQlG3bHMb924NFNEa0",
 
   // Affichage uniquement : le vrai calcul est fait côté serveur
   // (variable DEPOSIT_PERCENT de la fonction create-order). Garder la même valeur.
