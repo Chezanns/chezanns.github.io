@@ -218,16 +218,16 @@ main,.footer{overflow-x:clip}
 /* Niveau d'épices (compact, sous les Classiques) */
 .spice-mini{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--border);border-radius:0}
 .spice-mini__title{font-weight:800;font-size:15px;margin-right:4px}
-.spice-mini__opt{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:5px 16px 5px 10px;white-space:nowrap;position:relative;border:1.5px solid #EBD5BB;border-radius:999px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
-.spice-mini__opt:hover{border-color:var(--border)}
+.menu .spice-mini__opt{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:5px 16px 5px 10px;white-space:nowrap;position:relative;border:1.5px solid #EBD5BB;border-radius:999px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+.menu .spice-mini__opt:hover{border-color:var(--border)}
 .spice-mini__opt input{position:absolute;opacity:0;width:1px;height:1px}
-.spice-mini__opt:has(input:checked){border-color:#D62828;background:#FFF0E8;color:#8E1620}
-.spice-mini__opt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
+.menu .spice-mini__opt:has(input:checked){border-color:#D62828;background:#FFF0E8;color:#8E1620}
+.menu .spice-mini__opt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
 .spice-mini__ic{display:inline-flex;gap:0}
 .chili{width:18px;height:18px}
 .spice-mini__ic--off .chili{filter:grayscale(1);opacity:.4}
 .spice-mini.is-missing{animation:spice-shake .35s}
-.spice-mini.is-missing .spice-mini__opt{border-color:#D62828}
+.menu .spice-mini.is-missing .spice-mini__opt{border-color:#D62828}
 @keyframes spice-shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .recap__spice{margin:0;font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
 .recap__spice .chili{width:20px;height:20px}
