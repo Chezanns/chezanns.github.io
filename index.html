@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chez Ann's — Mignardises créoles en box</title>
+  <meta name="description" content="Box de mignardises créoles faites maison : Découverte, Signature, Prestige et Caraïbes. Commande en ligne avec acompte, retrait en Essonne (91).">
+  <meta property="og:title" content="Chez Ann's — Une touche de soleil dans chaque bouchée">
+  <meta property="og:description" content="Box de mignardises créoles faites maison. Commandez en ligne, retrait en Essonne (91).">
+  <meta property="og:image" content="images/hero.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="#accueil" class="logo">
+    <span class="logo__name">Chez Ann's</span>
+    <svg class="logo__swoosh" width="170" height="14" viewBox="0 0 170 14" aria-hidden="true"><path d="M2 10 C 50 0, 120 0, 168 8"/></svg>
+  </a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="#accueil" class="is-active">Accueil</a>
+    <a href="#compose">Nos Mignardises</a>
+    <a href="#box">Nos Box</a>
+    <a href="#univers">À propos</a>
+  </nav>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section id="accueil" class="hero">
+    <img class="hero__img" src="images/hero.jpg" alt="Plateau de mignardises créoles sur nappe madras, avec une fleur d'hibiscus">
+    <div class="hero__shade" aria-hidden="true"></div>
+    <svg class="wave wave--top" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1440 V18 C 1200 52, 980 4, 720 26 C 460 48, 220 8, 0 30 Z"/></svg>
+    <svg class="wave wave--bottom" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 260 70, 520 10, 760 34 C 1000 58, 1240 20, 1440 44 V70 H0 Z"/></svg>
+    <div class="hero__content">
+      <h1 class="hero__title">Une touche de<br><span>soleil</span><br>dans chaque bouchée…</h1>
+      <p class="hero__text">Des mignardises créoles, gourmandes et authentiques pour tous vos événements.</p>
+      <a href="#box" class="btn btn--gold">Découvrir nos box
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <!-- NOS BOX -->
+  <section id="box" class="section">
+    <div class="section__head">
+      <div class="script-title">
+        <svg class="flourish" viewBox="0 0 70 22" aria-hidden="true"><path d="M4 14 C 24 6, 44 8, 66 16"/><path d="M24 6 L 40 2"/></svg>
+        <h2>Nos Box Personnalisables</h2>
+        <svg class="flourish flourish--flip" viewBox="0 0 70 22" aria-hidden="true"><path d="M4 14 C 24 6, 44 8, 66 16"/><path d="M24 6 L 40 2"/></svg>
+      </div>
+      <p>Composez votre box selon vos envies parmi notre sélection de mignardises.</p>
+    </div>
+
+    <div class="box-grid">
+      <article class="box-card" data-box="decouverte" data-name="Box Découverte" data-price="30" data-max="6" data-pieces="20">
+        <img src="images/box-decouverte.jpg" alt="Box Découverte : mini burgers, tartelettes et verrines" loading="lazy">
+        <div class="box-card__body">
+          <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
+          <h3>Box Découverte</h3>
+          <p>20 pièces · 6 variétés au choix</p>
+          <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Découverte, 30 €">30 €</button>
+        </div>
+      </article>
+      <article class="box-card" data-box="signature" data-name="Box Signature" data-price="65" data-max="8" data-pieces="35">
+        <img src="images/box-signature.jpg" alt="Box Signature : wraps, tartelettes et pâtés" loading="lazy">
+        <div class="box-card__body">
+          <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
+          <h3>Box Signature</h3>
+          <p>35 pièces · 8 variétés au choix</p>
+          <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Signature, 65 €">65 €</button>
+        </div>
+      </article>
+      <article class="box-card" data-box="prestige" data-name="Box Prestige" data-price="120" data-max="6" data-pieces="60">
+        <img src="images/box-prestige.jpg" alt="Box Prestige : grand assortiment de mignardises" loading="lazy">
+        <div class="box-card__body">
+          <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
+          <h3>Box Prestige</h3>
+          <p>60 pièces · 6 variétés au choix</p>
+          <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Prestige, 120 €">120 €</button>
+        </div>
+      </article>
+      <article class="box-card" data-box="caraibes" data-name="Box Caraïbes" data-price="" data-max="5" data-only="caraibes">
+        <img src="images/box-caraibes.jpg" alt="Box Caraïbes : bokits, pâtés et verrines créoles" loading="lazy">
+        <div class="box-card__body">
+          <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
+          <h3>Box Caraïbes</h3>
+          <p>5 variétés au choix<br>(parmi notre sélection Caraïbes)</p>
+          <button type="button" class="pill pill--small" aria-pressed="false" aria-label="Choisir la Box Caraïbes, sur devis">Sur devis</button>
+        </div>
+      </article>
+    </div>
+    <p class="hint-line">Touchez le prix d'une box pour la choisir, puis composez-la juste en dessous.</p>
+  </section>
+
+  <!-- COMPOSE TA BOX -->
+  <section id="compose" class="section section--compose">
+    <div class="section__head">
+      <div class="script-title">
+        <svg class="flourish" viewBox="0 0 70 22" aria-hidden="true"><path d="M4 14 C 24 6, 44 8, 66 16"/><path d="M24 6 L 40 2"/></svg>
+        <h2>Compose ta Box</h2>
+        <svg class="flourish flourish--flip" viewBox="0 0 70 22" aria-hidden="true"><path d="M4 14 C 24 6, 44 8, 66 16"/><path d="M24 6 L 40 2"/></svg>
+      </div>
+      <p>Choisissez vos mignardises parmi nos deux univers : Classique &amp; Caraïbes.</p>
+      <p class="compose-status" id="compose-status" aria-live="polite">Choisissez d'abord une box ci-dessus.</p>
+    </div>
+
+    <div class="menus">
+      <fieldset class="menu menu--classique" data-univers="classique">
+        <legend>Nos mignardises Classiques</legend>
+        <p class="menu__locked">Non disponible avec la Box Caraïbes</p>
+        <div class="menu__cols">
+          <div class="menu__col">
+            <label><input type="checkbox" value="mini-burger" data-univers="classique"> Mini burger</label>
+            <label><input type="checkbox" value="mini-croissant" data-univers="classique"> Mini croissant saucisse de poulet ou jambon fromage</label>
+            <label><input type="checkbox" value="navette-poulet-salade" data-univers="classique"> Navette poulet fumé et salade</label>
+            <label><input type="checkbox" value="toast-olives" data-univers="classique"> Toast aux olives épicées</label>
+            <label><input type="checkbox" value="tapas" data-univers="classique"> Variété de tapas</label>
+          </div>
+          <div class="menu__col menu__col--sep">
+            <label><input type="checkbox" value="mini-hot-dog" data-univers="classique"> Mini hot-dog</label>
+            <label><input type="checkbox" value="mini-croque" data-univers="classique"> Mini croque-monsieur</label>
+            <label><input type="checkbox" value="mini-quiche" data-univers="classique"> Mini quiche saumon ou jambon fromage</label>
+            <label><input type="checkbox" value="tartelette-thon" data-univers="classique"> Mini tartelette au thon</label>
+            <label><input type="checkbox" value="toast-avocat-crevette" data-univers="classique"> Toast avocat crevette</label>
+            <label><input type="checkbox" value="samoussa-poulet" data-univers="classique"> Samoussa poulet</label>
+            <label><input type="checkbox" value="verrine-crudites" data-univers="classique"> Verrine de crudités</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="menu menu--caraibes" data-univers="caraibes">
+        <legend>Nos mignardises Caraïbes</legend>
+        <div class="menu__col">
+          <label><input type="checkbox" value="accras" data-univers="caraibes"> Accras de morue, de crevette ou de poulet</label>
+          <label><input type="checkbox" value="sandwich-madras" data-univers="caraibes"> Mini sandwich madras</label>
+          <label><input type="checkbox" value="mini-bokit" data-univers="caraibes"> Mini bokit poulet, morue ou steak haché et cheddar</label>
+          <label><input type="checkbox" value="dize-mile" data-univers="caraibes"> Dizé milé salé au poulet</label>
+          <label><input type="checkbox" value="kalawang" data-univers="caraibes"> Kalawang (salade de mangue)</label>
+          <label><input type="checkbox" value="navette-poulet-fume" data-univers="caraibes"> Navette au poulet fumé</label>
+          <label><input type="checkbox" value="samoussa-thon-legumes" data-univers="caraibes"> Samoussa thon / légumes</label>
+          <label><input type="checkbox" value="verrine-guacamole" data-univers="caraibes"> Verrine guacamole</label>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <!-- (Rubrique Spécial Noël à ajouter ici) -->
+
+  <!-- BANDEAU -->
+  <section class="band">
+    <svg class="band__wave band__wave--top" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1440 V8 C 1100 40, 700 0, 380 24 C 220 36, 100 30, 0 20 Z"/></svg>
+    <svg class="band__wave band__wave--bottom" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 26 C 300 6, 700 40, 1060 18 C 1240 8, 1360 14, 1440 22 V40 H0 Z"/></svg>
+    <div class="band__inner">
+      <div class="band__item">
+        <svg width="50" height="50" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 28c-5 0-8-4-8-8s4-8 8-7c1-5 5-8 10-8s9 3 10 8c4-1 8 3 8 7s-3 8-8 8"/><path d="M14 26v14h20V26"/><path d="M14 34h20"/></svg>
+        <span>Des saveurs créoles<br>authentiques</span>
+      </div>
+      <span class="band__sep" aria-hidden="true"></span>
+      <div class="band__item">
+        <svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41S6 30 6 17a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 13-18 24-18 24z"/></svg>
+        <span>Fait avec amour</span>
+      </div>
+      <span class="band__sep" aria-hidden="true"></span>
+      <div class="band__item">
+        <svg width="50" height="50" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44c0-12 1-20 4-28"/><path d="M28 16c-6-6-14-6-20-1 6 0 11 1 14 4"/><path d="M28 16c5-7 13-8 18-4-6 0-10 2-13 5"/><path d="M28 16c-2-6-8-10-14-10 4 2 7 5 8 9"/><path d="M28 16c3-5 8-8 13-7-4 2-7 5-8 9"/><path d="M16 44h18"/></svg>
+        <span>Retrait uniquement<br>en Essonne (91)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTRE UNIVERS -->
+  <section id="univers" class="univers">
+    <div class="univers__text">
+      <h2>Notre univers</h2>
+      <p>Inspirée par les saveurs créoles, Chez Ann's vous propose des mignardises gourmandes et ensoleillées, pour partager un moment unique.</p>
+      <a href="#box" class="btn btn--outline">Commander une box
+        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+    </div>
+    <span class="univers__sep" aria-hidden="true"></span>
+    <div class="univers__quote">
+      <p class="univers__big">Entre Terre et Soleil</p>
+      <p class="univers__small">L'art de sublimer vos papilles.</p>
+      <svg width="280" height="20" viewBox="0 0 280 20" aria-hidden="true"><path d="M4 14 C 90 2, 190 2, 276 12"/></svg>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer__deco" aria-hidden="true">
+    <img class="footer__bow footer__bow--left" src="images/noeud-gauche.png" alt="">
+    <svg class="footer__swoosh" viewBox="0 0 460 60"><path d="M10 50 C 80 10, 150 10, 196 34"/><path d="M450 50 C 380 10, 310 10, 264 34"/></svg>
+    <img class="footer__fly" src="images/papillon.png" alt="">
+    <img class="footer__bow footer__bow--right" src="images/noeud-droit.png" alt="">
+  </div>
+  <p class="footer__legal">© <span id="year"></span> Chez Ann's · Mignardises créoles faites maison · Retrait en Essonne (91)<span id="footer-links"></span></p>
+</footer>
+
+<!-- Barre de commande (apparaît quand une box est choisie) -->
+<div class="cartbar" id="cartbar" hidden>
+  <div class="cartbar__info">
+    <strong id="cartbar-name">Box</strong>
+    <span id="cartbar-count">0 variété choisie</span>
+  </div>
+  <button type="button" class="btn btn--red" id="cartbar-go" disabled>Valider ma box</button>
+</div>
+
+<!-- Fenêtre de commande -->
+<dialog class="modal" id="order-dialog" aria-labelledby="order-title">
+  <form id="order-form" class="modal__inner" novalidate>
+    <button type="button" class="modal__close" data-close aria-label="Fermer">×</button>
+    <h2 id="order-title" class="modal__title">Ma commande</h2>
+
+    <div class="recap">
+      <div class="recap__row">
+        <strong id="recap-name">Box</strong>
+        <div class="qty" id="qty-wrap">
+          <button type="button" id="qty-minus" aria-label="Retirer une box">−</button>
+          <output id="qty-value" aria-live="polite">1</output>
+          <button type="button" id="qty-plus" aria-label="Ajouter une box">+</button>
+        </div>
+      </div>
+      <ul class="recap__items" id="recap-items"></ul>
+      <div class="recap__money" id="recap-money">
+        <div><span>Total</span><span id="recap-total">—</span></div>
+        <div class="recap__deposit"><span>Acompte à payer maintenant (<span id="recap-pct"></span> %)</span><strong id="recap-deposit">—</strong></div>
+        <div class="recap__rest"><span>Solde à régler au retrait</span><span id="recap-rest">—</span></div>
+      </div>
+      <p class="recap__quote" id="recap-quote" hidden>La Box Caraïbes est préparée sur devis : envoyez votre demande, Annie vous recontacte rapidement avec un prix.</p>
+    </div>
+
+    <div class="fields">
+      <label>Prénom et nom *<input name="customer_name" autocomplete="name" required maxlength="80"></label>
+      <label>Téléphone *<input name="phone" type="tel" autocomplete="tel" required maxlength="20" placeholder="06 00 00 00 00"></label>
+      <label class="fields__full">E-mail *<input name="email" type="email" autocomplete="email" required maxlength="120" placeholder="vous@exemple.fr"></label>
+      <label class="quote-only" hidden>Nombre de personnes *<input name="guests" type="number" min="1" max="500" inputmode="numeric"></label>
+      <label><span id="date-label">Date de retrait *</span><input name="pickup_date" type="date" required></label>
+      <label>Créneau *<select name="pickup_slot" id="slot-select" required></select></label>
+      <label class="fields__full">Allergies ou message pour Annie<textarea name="notes" rows="3" maxlength="500" placeholder="Ex. sans piment pour les enfants, c'est pour un anniversaire…"></textarea></label>
+    </div>
+
+    <p class="pickup-note"><strong>Retrait :</strong> <span id="pickup-place"></span>. <span id="pickup-info"></span></p>
+    <label class="consent"><input type="checkbox" name="consent" required> <span id="consent-text">J'ai bien noté que le retrait se fait en Essonne (91) et que le solde est à régler sur place.</span></label>
+
+    <p class="form-error" id="form-error" role="alert" hidden></p>
+    <button type="submit" class="btn btn--red btn--block" id="submit-btn">Payer l'acompte et réserver</button>
+    <p class="secure"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Paiement sécurisé par Stripe</p>
+  </form>
+</dialog>
+
+<!-- Fenêtre de retour après paiement -->
+<dialog class="modal" id="return-dialog" aria-labelledby="return-title">
+  <div class="modal__inner modal__inner--center">
+    <button type="button" class="modal__close" data-close aria-label="Fermer">×</button>
+    <img src="images/papillon.png" alt="" class="return__fly">
+    <h2 id="return-title" class="modal__title">Merci !</h2>
+    <p id="return-text"></p>
+    <button type="button" class="btn btn--gold" data-close>Retour au site</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
