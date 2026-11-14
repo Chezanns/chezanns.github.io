@@ -32,7 +32,7 @@ create table if not exists public.orders (
   box_name          text not null,
   qty               int  not null default 1 check (qty between 1 and 10),
   items             text[] not null default '{}',
-  spice             smallint not null default 0 check (spice between 0 and 3), -- 0 pas épicé → 3 ça chauffe
+  spice             smallint not null default 0 check (spice between 0 and 3), -- 0 pas épicé → 3 ça décoiffe
   customer_name     text not null,
   phone             text not null,
   email             text not null,
@@ -41,13 +41,15 @@ create table if not exists public.orders (
   notes             text,
   guests            int,
   total_cents       int,
-  deposit_cents     int,
+  deposit_cents     int,              -- montant payé en ligne (acompte ou totalité)
+  pay_full          boolean not null default false,
   deposit_paid      boolean not null default false,
   paid_at           timestamptz,
   stripe_session_id text,
   status            text not null default 'attente_paiement'
                     check (status in ('attente_paiement','confirmee','prete','recuperee','devis','devis_traite','annulee'))
 );
+alter table public.orders add column if not exists pay_full boolean not null default false;
 alter table public.orders add column if not exists spice smallint not null default 0 check (spice between 0 and 3);
 create index if not exists orders_pickup_idx on public.orders (pickup_date, pickup_slot);
 
@@ -89,8 +91,8 @@ create policy "admin se voit" on public.admins
 
 -- ── Données de départ ──────────────────────────────────────
 insert into public.boxes (id, name, pieces, max_varieties, price_cents, only_univers, sort) values
-  ('decouverte', 'Box Découverte',   20, 6, 3000,  null,       1),
-  ('signature',  'Box Signature',    35, 8, 6500,  null,       2),
+  ('decouverte', 'Box Découverte',   20, 5, 3000,  null,       1),
+  ('signature',  'Box Signature',    35, 7, 6500,  null,       2),
   ('prestige',   'Box Prestige',     60, 6, 12000, null,       3),
   ('caraibes',   'Box Caraïbes',   null, 5, null,  'caraibes', 4)
 on conflict (id) do update set

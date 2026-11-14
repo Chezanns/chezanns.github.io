@@ -1,4 +1,4 @@
-// Chez Ann's — création d'une commande + session de paiement Stripe pour l'acompte
+// Chez Ann's — création d'une commande + session de paiement Stripe (acompte ou totalité)
 // Secrets nécessaires : STRIPE_SECRET_KEY, SITE_URL (+ optionnels DEPOSIT_PERCENT, LEAD_DAYS)
 import Stripe from "npm:stripe@16.12.0";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -82,10 +82,10 @@ Deno.serve(async (req) => {
     if (box.only_univers && items.some((i) => i.univers !== box.only_univers)) {
       return fail("Cette box se compose uniquement de mignardises Caraïbes.");
     }
-    // Niveau d'épices : 0 pas épicé, 1 peu épicé, 2 épicé, 3 ça chauffe bien
+    // Niveau d'épices : 0 pas épicé, 1 peu épicé, 2 épicé, 3 ça décoiffe
     const spice = Number(b.spice);
     if (!Number.isInteger(spice) || spice < 0 || spice > 3) return fail("Choisissez le niveau d'épices.");
-    const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien"];
+    const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
 
     // On garde l'ordre choisi par le client
     const itemNames = ids.map((id) => items.find((i) => i.id === id)!.name);
@@ -105,13 +105,16 @@ Deno.serve(async (req) => {
       return json({ ok: true, ref });
     }
 
-    // ── Box à prix fixe : acompte via Stripe ──
+    // ── Box à prix fixe : paiement via Stripe ──
     const qty = Math.min(10, Math.max(1, Math.floor(Number(b.qty) || 1)));
     const total_cents = box.price_cents * qty;
-    const deposit_cents = Math.round((total_cents * DEPOSIT_PERCENT) / 100);
+    // Le client choisit : acompte (DEPOSIT_PERCENT %) ou totalité
+    const pay_full = b.pay_full === true;
+    const deposit_cents = pay_full ? total_cents : Math.round((total_cents * DEPOSIT_PERCENT) / 100);
+    const rest = ((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",");
 
     const { data: order, error } = await supabase.from("orders")
-      .insert({ ...base, qty, total_cents, deposit_cents, status: "attente_paiement" })
+      .insert({ ...base, qty, total_cents, deposit_cents, pay_full, status: "attente_paiement" })
       .select("id").single();
     if (error) throw error;
 
@@ -125,8 +128,11 @@ Deno.serve(async (req) => {
           currency: "eur",
           unit_amount: deposit_cents,
           product_data: {
-            name: `Acompte ${DEPOSIT_PERCENT} % — ${box.name} × ${qty}`,
-            description: `${SPICE_LABELS[spice]} · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref} · Solde de ${((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",")} € à régler au retrait`,
+            name: pay_full
+              ? `${box.name} × ${qty} — paiement complet`
+              : `Acompte ${DEPOSIT_PERCENT} % — ${box.name} × ${qty}`,
+            description: `${SPICE_LABELS[spice]} · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref}` +
+              (pay_full ? " · Rien à régler au retrait" : ` · Solde de ${rest} € à régler au retrait`),
           },
         },
       }],

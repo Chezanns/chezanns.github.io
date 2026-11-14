@@ -35,7 +35,7 @@
     var t = $("#toast"); t.textContent = msg; t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2600);
   }
-  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien"];
+  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
   function chilis(level) {
     level = Number(level) || 0;
     var s = "";
@@ -59,7 +59,7 @@
         box_name: { decouverte: "Box Découverte", signature: "Box Signature", prestige: "Box Prestige", caraibes: "Box Caraïbes" }[box],
         qty: qty, customer_name: name, phone: phone, email: "client@exemple.fr", items: items, status: status,
         total_cents: price ? price * qty : null, deposit_cents: price ? Math.round(price * qty * 0.3) : null,
-        deposit_paid: !!price, notes: null, guests: null, spice: [2, 0, 0, 3, 1, 2, 2][n++ % 7]
+        deposit_paid: !!price, pay_full: false, notes: null, guests: null, spice: [2, 0, 0, 3, 1, 2, 2][n++ % 7]
       }, extra || {});
     };
     return [
@@ -67,7 +67,7 @@
       o(0, "17h – 19h", "decouverte", 1, "Karine Bellune", "06 98 76 54 32", ["Mini hot-dog", "Accras de morue, de crevette ou de poulet", "Mini tartelette au thon"], "prete"),
       o(1, "14h – 16h", "decouverte", 3, "Jessica Toto", "07 45 12 89 63", ["Accras de morue, de crevette ou de poulet", "Mini burger", "Verrine de crudités", "Samoussa poulet"], "confirmee", { notes: "Sans piment pour les enfants svp" }),
       o(3, "17h – 19h", "prestige", 1, "Stéphane Moreau", "06 33 21 45 87", ["Mini burger", "Accras de morue, de crevette ou de poulet", "Mini bokit poulet, morue ou steak haché et cheddar", "Toast avocat crevette", "Dizé milé salé au poulet", "Mini quiche saumon ou jambon fromage"], "confirmee", { notes: "Anniversaire 40 ans" }),
-      o(4, "10h – 12h", "signature", 1, "Nadia Rivière", "06 71 09 22 15", ["Accras de morue, de crevette ou de poulet", "Kalawang (salade de mangue)", "Mini sandwich madras"], "confirmee"),
+      o(4, "10h – 12h", "signature", 1, "Nadia Rivière", "06 71 09 22 15", ["Accras de morue, de crevette ou de poulet", "Kalawang (salade de mangue)", "Mini sandwich madras"], "confirmee", { pay_full: true, deposit_cents: 6500 }),
       o(11, "14h – 16h", "prestige", 2, "Lydie Marceau", "06 55 18 72 40", ["Accras de morue, de crevette ou de poulet", "Mini burger", "Samoussa poulet"], "confirmee", { notes: "Baptême" }),
       o(9, "14h – 16h", "caraibes", 1, "Fabrice Delage", "07 82 63 14 50", ["Accras de morue, de crevette ou de poulet", "Mini bokit poulet, morue ou steak haché et cheddar", "Dizé milé salé au poulet", "Verrine guacamole", "Kalawang (salade de mangue)"], "devis", { guests: 40, notes: "Pour un mariage, on peut en parler ?" })
     ];
@@ -141,7 +141,7 @@
     $("#kpis").innerHTML =
       kpi("Commandes", sales.length, label, "main") +
       kpi("Box à préparer", nBoxes, nReady + " déjà prête" + (nReady > 1 ? "s" : "")) +
-      kpi("Acomptes reçus", eur(paid), label, "green") +
+      kpi("Déjà encaissé", eur(paid), label, "green") +
       kpi("Reste à encaisser", eur(rest), quotes.length + " devis en attente");
   }
   function kpi(label, value, sub, mod) {
@@ -175,8 +175,13 @@
     if (o.status === "devis" || o.status === "devis_traite") {
       badges += '<span class="badge badge--quote">' + (o.status === "devis" ? "Devis à faire" : "Devis traité") + " · " + esc(o.guests) + " pers.</span>";
     } else {
-      badges += '<span class="badge badge--paid">Acompte reçu · ' + eur(o.deposit_cents) + "</span>";
-      badges += '<span class="badge">Reste ' + eur((o.total_cents || 0) - (o.deposit_cents || 0)) + "</span>";
+      var restCents = (o.total_cents || 0) - (o.deposit_cents || 0);
+      if (restCents <= 0) {
+        badges += '<span class="badge badge--full">Payé en totalité · ' + eur(o.deposit_cents) + "</span>";
+      } else {
+        badges += '<span class="badge badge--paid">Acompte reçu · ' + eur(o.deposit_cents) + "</span>";
+        badges += '<span class="badge">Reste ' + eur(restCents) + "</span>";
+      }
       if (o.status === "prete") badges += '<span class="badge badge--ready">✓ Prête</span>';
       if (o.status === "recuperee") badges += '<span class="badge badge--done">Récupérée</span>';
     }

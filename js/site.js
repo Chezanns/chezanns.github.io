@@ -36,7 +36,7 @@
   function plural(n, one, many) { return n + " " + (n > 1 ? many : one); }
 
   // ── Niveau d'épices ──────────────────────────────────────
-  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça chauffe bien !"];
+  var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe !"];
   function getSpice() {
     var r = $('input[name="spice"]:checked');
     return r ? Number(r.value) : null;
@@ -138,6 +138,14 @@
   $("#pickup-info").textContent = C.PICKUP_INFO || "";
   $("#recap-pct").textContent = pct;
 
+  function payFull() {
+    var r = $('input[name="pay_mode"]:checked');
+    return !!r && r.value === "total";
+  }
+  $$('input[name="pay_mode"]').forEach(function (r) {
+    r.addEventListener("change", function () { renderRecap(); });
+  });
+
   function isQuote() { return state.box && state.box.price === null; }
 
   function renderRecap() {
@@ -167,16 +175,18 @@
       $("input", el).required = quote;
     });
     $("#date-label").textContent = quote ? "Date souhaitée *" : "Date de retrait *";
-    $("#submit-btn").textContent = quote ? "Envoyer ma demande de devis" : "Payer l'acompte et réserver";
+    $("#submit-btn").textContent = quote ? "Envoyer ma demande de devis" : payFull() ? "Payer et réserver" : "Payer l'acompte et réserver";
     $("#consent-text").textContent = quote
       ? "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") + " et qu'Annie me recontacte avec un devis."
-      : "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") + " et que le solde est à régler sur place.";
+      : "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
+        (payFull() ? "." : " et que le solde est à régler sur place.");
     if (!quote) {
       var total = b.price * state.qty;
       var dep = Math.round(total * pct) / 100;
       $("#recap-total").textContent = euros(total);
       $("#recap-deposit").textContent = euros(dep);
       $("#recap-rest").textContent = euros(Math.round((total - dep) * 100) / 100);
+      $("#recap-full").textContent = euros(total);
     }
   }
 
@@ -238,6 +248,7 @@
       qty: isQuote() ? 1 : state.qty,
       items: selectedItems().map(function (c) { return c.value; }),
       spice: getSpice(),
+      pay_full: !isQuote() && payFull(),
       customer_name: f.customer_name.value.trim(),
       phone: f.phone.value.trim(),
       email: f.email.value.trim(),
@@ -286,6 +297,8 @@
     $(".menu--classique").classList.remove("is-locked");
     state.box = null; state.qty = 1;
     form.reset();
+    var dflt = $('input[name="pay_mode"][value="acompte"]');
+    if (dflt) dflt.checked = true;
     updateStatus();
   }
 
@@ -297,7 +310,7 @@
   }
   var params = new URLSearchParams(window.location.search);
   if (params.get("commande") === "ok") {
-    showReturn("Merci !", "Votre acompte est bien reçu et votre commande" +
+    showReturn("Merci !", "Votre paiement est bien reçu et votre commande" +
       (params.get("ref") ? " (réf. " + params.get("ref") + ")" : "") +
       " est confirmée. Vous recevez le reçu par e-mail. " + (C.PICKUP_INFO || ""));
   } else if (params.get("commande") === "annulee") {

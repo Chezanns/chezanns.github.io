@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chez Ann's — Mignardises créoles en box</title>
-  <meta name="description" content="Box de mignardises créoles faites maison : Découverte, Signature, Prestige et Caraïbes. Commande en ligne avec acompte, retrait en Essonne (91).">
+  <meta name="description" content="Box de mignardises créoles faites maison : Découverte, Signature, Prestige et Caraïbes. Commande en ligne avec acompte ou paiement complet, retrait en Essonne (91).">
   <meta property="og:title" content="Chez Ann's — Une touche de soleil dans chaque bouchée">
   <meta property="og:description" content="Box de mignardises créoles faites maison. Commandez en ligne, retrait en Essonne (91).">
   <meta property="og:image" content="images/hero.jpg">
@@ -63,21 +63,21 @@
     </div>
 
     <div class="box-grid">
-      <article class="box-card" data-box="decouverte" data-name="Box Découverte" data-price="30" data-max="6" data-pieces="20">
+      <article class="box-card" data-box="decouverte" data-name="Box Découverte" data-price="30" data-max="5" data-pieces="20">
         <img src="images/box-decouverte.jpg" alt="Box Découverte : mini burgers, tartelettes et verrines" loading="lazy">
         <div class="box-card__body">
           <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
           <h3>Box Découverte</h3>
-          <p>20 pièces · 6 variétés au choix</p>
+          <p>20 pièces · 5 variétés au choix</p>
           <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Découverte, 30 €">30 €</button>
         </div>
       </article>
-      <article class="box-card" data-box="signature" data-name="Box Signature" data-price="65" data-max="8" data-pieces="35">
+      <article class="box-card" data-box="signature" data-name="Box Signature" data-price="65" data-max="7" data-pieces="35">
         <img src="images/box-signature.jpg" alt="Box Signature : wraps, tartelettes et pâtés" loading="lazy">
         <div class="box-card__body">
           <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
           <h3>Box Signature</h3>
-          <p>35 pièces · 8 variétés au choix</p>
+          <p>35 pièces · 7 variétés au choix</p>
           <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Signature, 65 €">65 €</button>
         </div>
       </article>
@@ -142,7 +142,7 @@
           <label class="spice-mini__opt"><input type="radio" name="spice" value="0"><span class="spice-mini__ic spice-mini__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
           <label class="spice-mini__opt"><input type="radio" name="spice" value="1"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Peu épicé</label>
           <label class="spice-mini__opt"><input type="radio" name="spice" value="2"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Épicé</label>
-          <label class="spice-mini__opt"><input type="radio" name="spice" value="3"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça chauffe bien</label>
+          <label class="spice-mini__opt"><input type="radio" name="spice" value="3"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça décoiffe</label>
         </div>
       </fieldset>
 
@@ -242,8 +242,10 @@
       <p class="recap__spice" id="recap-spice"></p>
       <div class="recap__money" id="recap-money">
         <div><span>Total</span><span id="recap-total">—</span></div>
-        <div class="recap__deposit"><span>Acompte à payer maintenant (<span id="recap-pct"></span> %)</span><strong id="recap-deposit">—</strong></div>
-        <div class="recap__rest"><span>Solde à régler au retrait</span><span id="recap-rest">—</span></div>
+        <div class="paychoice" role="radiogroup" aria-label="Mode de paiement">
+          <label class="paychoice__opt"><input type="radio" name="pay_mode" value="acompte" checked><span class="paychoice__txt"><strong>Payer l'acompte (<span id="recap-pct"></span> %)</strong><small>Solde de <span id="recap-rest">—</span> à régler au retrait</small></span><b id="recap-deposit">—</b></label>
+          <label class="paychoice__opt"><input type="radio" name="pay_mode" value="total"><span class="paychoice__txt"><strong>Payer la totalité</strong><small>Rien à régler au retrait</small></span><b id="recap-full">—</b></label>
+        </div>
       </div>
       <p class="recap__quote" id="recap-quote" hidden>La Box Caraïbes est préparée sur devis : envoyez votre demande, Annie vous recontacte rapidement avec un prix.</p>
     </div>
