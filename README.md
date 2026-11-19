@@ -66,6 +66,16 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxx
 3. Faire une demande de devis Box Caraïbes et vérifier l'onglet **Devis**.
 4. Tout est bon → remplacer les clés `sk_test` par `sk_live` (et recréer le webhook en mode live avec son nouveau `whsec_`).
 
+## E-mails automatiques (Brevo)
+
+- **Commande confirmée** : envoyé par `stripe-webhook` dès que le paiement est reçu (récap complet).
+- **Commande prête** : envoyé par `notify-ready` quand Annie touche « Marquer prête » (date, créneau, adresse, lien Google Maps, reste à payer).
+- Chaque e-mail n'est envoyé qu'une fois par commande (colonnes `confirm_email_sent_at` / `ready_email_sent_at`).
+
+Secrets Supabase : `BREVO_API_KEY`, `MAIL_FROM` (expéditeur validé dans Brevo), `PICKUP_ADDRESS`,
+et en option `MAIL_FROM_NAME`, `PICKUP_NOTE`, `CONTACT_PHONE`, `NOTIFY_EMAIL` (copie de chaque commande pour Annie).
+La fonction `notify-ready` garde « Enforce JWT verification » activé.
+
 ---
 
 ## Modifier les box ou les prix

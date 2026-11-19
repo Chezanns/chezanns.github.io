@@ -46,9 +46,13 @@ create table if not exists public.orders (
   deposit_paid      boolean not null default false,
   paid_at           timestamptz,
   stripe_session_id text,
+  confirm_email_sent_at timestamptz,  -- e-mail « commande confirmée » envoyé
+  ready_email_sent_at   timestamptz,  -- e-mail « commande prête » envoyé
   status            text not null default 'attente_paiement'
                     check (status in ('attente_paiement','confirmee','prete','recuperee','devis','devis_traite','annulee'))
 );
+alter table public.orders add column if not exists confirm_email_sent_at timestamptz;
+alter table public.orders add column if not exists ready_email_sent_at timestamptz;
 alter table public.orders add column if not exists pay_full boolean not null default false;
 alter table public.orders add column if not exists spice smallint not null default 0 check (spice between 0 and 3);
 create index if not exists orders_pickup_idx on public.orders (pickup_date, pickup_slot);

@@ -90,12 +90,32 @@
 
   function setStatus(id, status, btn) {
     if (btn) btn.disabled = true;
-    var apply = function () {
-      orders.forEach(function (o) { if (o.id === id) o.status = status; });
+    var current = orders.filter(function (o) { return o.id === id; })[0] || {};
+    var apply = function (msg, extra) {
+      orders.forEach(function (o) { if (o.id === id) { o.status = status; Object.assign(o, extra || {}); } });
       render();
-      toast({ prete: "Box marquée prête", recuperee: "Commande récupérée", confirmee: "Remise à préparer", devis_traite: "Devis marqué traité", devis: "Devis remis en attente" }[status] || "Enregistré");
+      toast(msg || { prete: "Box marquée prête", recuperee: "Commande récupérée", confirmee: "Remise à préparer", devis_traite: "Devis marqué traité", devis: "Devis remis en attente" }[status] || "Enregistré");
     };
-    if (DEMO) return apply();
+    if (DEMO) {
+      return status === "prete" && current.status === "confirmee"
+        ? apply("Box prête — e-mail envoyé au client (démo)", { ready_email_sent_at: new Date().toISOString() })
+        : apply();
+    }
+
+    // « Marquer prête » : passe par la fonction qui envoie l'e-mail avec l'adresse de retrait
+    if (status === "prete" && current.status === "confirmee") {
+      sb.functions.invoke("notify-ready", { body: { order_id: id } }).then(function (res) {
+        if (res.error || !res.data || !res.data.ok) {
+          toast("Erreur : la box n'a pas pu être marquée prête");
+          if (btn) btn.disabled = false;
+          return;
+        }
+        if (res.data.emailed) apply("Box prête — e-mail envoyé au client", { ready_email_sent_at: new Date().toISOString() });
+        else if (res.data.already) apply("Box prête (le client avait déjà reçu l'e-mail)");
+        else apply("Box prête, mais l'e-mail n'a pas pu partir : prévenez le client par téléphone");
+      });
+      return;
+    }
     sb.from("orders").update({ status: status }).eq("id", id).then(function (res) {
       if (res.error) { toast("Erreur : modification non enregistrée"); if (btn) btn.disabled = false; return; }
       apply();
@@ -182,7 +202,7 @@
         badges += '<span class="badge badge--paid">Acompte reçu · ' + eur(o.deposit_cents) + "</span>";
         badges += '<span class="badge">Reste ' + eur(restCents) + "</span>";
       }
-      if (o.status === "prete") badges += '<span class="badge badge--ready">✓ Prête</span>';
+      if (o.status === "prete") badges += '<span class="badge badge--ready">✓ Prête' + (o.ready_email_sent_at ? " · client prévenu par e-mail" : "") + "</span>";
       if (o.status === "recuperee") badges += '<span class="badge badge--done">Récupérée</span>';
     }
     var actions = "";
