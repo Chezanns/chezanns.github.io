@@ -1,8 +1,9 @@
 // Chez Ann's — « Marquer prête » depuis le tableau de bord + e-mail au client avec l'adresse de retrait
-// Secrets nécessaires : BREVO_API_KEY, MAIL_FROM, PICKUP_ADDRESS
+// Secrets nécessaires : SMTP_USER, SMTP_PASS, PICKUP_ADDRESS
 //                       (+ optionnels MAIL_FROM_NAME, PICKUP_NOTE, CONTACT_PHONE)
 // Réglage : « Enforce JWT verification » ACTIVÉ (seule Annie, connectée, peut l'appeler)
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -45,21 +46,24 @@ function layout(title: string, body: string) {
 }
 
 async function sendMail(to: string, toName: string, subject: string, html: string) {
-  const key = Deno.env.get("BREVO_API_KEY");
-  const from = Deno.env.get("MAIL_FROM");
-  if (!key || !from) throw new Error("BREVO_API_KEY ou MAIL_FROM manquant");
-  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
-    body: JSON.stringify({
-      sender: { email: from, name: Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's" },
-      replyTo: { email: from, name: Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's" },
-      to: [{ email: to, name: toName }],
-      subject,
-      htmlContent: html,
-    }),
+  const user = Deno.env.get("SMTP_USER");
+  const pass = Deno.env.get("SMTP_PASS");
+  if (!user || !pass) throw new Error("SMTP_USER ou SMTP_PASS manquant");
+  // Gmail en SSL sur le port 465 (les ports 25 et 587 sont bloqués sur Supabase)
+  const transporter = nodemailer.createTransport({
+    host: Deno.env.get("SMTP_HOST") ?? "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: { user, pass: pass.replace(/\s+/g, "") },
   });
-  if (!res.ok) throw new Error(`Brevo ${res.status}: ${await res.text()}`);
+  const name = Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's";
+  await transporter.sendMail({
+    from: { name, address: user },
+    replyTo: { name, address: user },
+    to: { name: toName, address: to },
+    subject,
+    html,
+  });
 }
 
 // deno-lint-ignore no-explicit-any
