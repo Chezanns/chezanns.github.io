@@ -1,6 +1,6 @@
 // Chez Ann's — réception des notifications Stripe (paiement) + e-mail de confirmation au client
 // Secrets nécessaires : STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-//                       SMTP_USER, SMTP_PASS (+ optionnels MAIL_FROM_NAME, CONTACT_PHONE, NOTIFY_EMAIL)
+//                       SMTP_USER, SMTP_PASS (+ optionnels REPLY_TO, MAIL_FROM_NAME, CONTACT_PHONE, NOTIFY_EMAIL)
 // Réglage : « Enforce JWT verification » DÉSACTIVÉ pour cette fonction
 import Stripe from "npm:stripe@16.12.0";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -74,7 +74,7 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
   const name = Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's";
   await transporter.sendMail({
     from: { name, address: user },
-    replyTo: { name, address: user },
+    replyTo: { name, address: Deno.env.get("REPLY_TO") ?? user }, // les réponses des clients arrivent ici
     to: { name: toName, address: to },
     subject,
     html,

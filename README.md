@@ -73,7 +73,7 @@ supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxx
 - Chaque e-mail n'est envoyé qu'une fois par commande (colonnes `confirm_email_sent_at` / `ready_email_sent_at`).
 
 Secrets Supabase : `SMTP_USER` (adresse Gmail d'Annie), `SMTP_PASS` (mot de passe d'application Google, 16 lettres), `PICKUP_ADDRESS`,
-et en option `MAIL_FROM_NAME`, `PICKUP_NOTE`, `CONTACT_PHONE`, `NOTIFY_EMAIL` (copie de chaque commande pour Annie).
+et en option `REPLY_TO` (adresse qui reçoit les réponses des clients, ex. iCloud d'Annie), `MAIL_FROM_NAME`, `PICKUP_NOTE`, `CONTACT_PHONE`, `NOTIFY_EMAIL` (copie de chaque commande pour Annie).
 La fonction `notify-ready` garde « Enforce JWT verification » activé.
 
 ---

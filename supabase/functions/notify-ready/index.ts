@@ -1,6 +1,6 @@
 // Chez Ann's — « Marquer prête » depuis le tableau de bord + e-mail au client avec l'adresse de retrait
 // Secrets nécessaires : SMTP_USER, SMTP_PASS, PICKUP_ADDRESS
-//                       (+ optionnels MAIL_FROM_NAME, PICKUP_NOTE, CONTACT_PHONE)
+//                       (+ optionnels REPLY_TO, MAIL_FROM_NAME, PICKUP_NOTE, CONTACT_PHONE)
 // Réglage : « Enforce JWT verification » ACTIVÉ (seule Annie, connectée, peut l'appeler)
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import nodemailer from "npm:nodemailer@6.9.16";
@@ -59,7 +59,7 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
   const name = Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's";
   await transporter.sendMail({
     from: { name, address: user },
-    replyTo: { name, address: user },
+    replyTo: { name, address: Deno.env.get("REPLY_TO") ?? user }, // les réponses des clients arrivent ici
     to: { name: toName, address: to },
     subject,
     html,
