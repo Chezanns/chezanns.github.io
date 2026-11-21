@@ -19,7 +19,7 @@ insert into public.items (id, name, univers) values
   ('accras-crevette',   'Accras de crevette',             'caraibes'),
   ('mini-bokit-poulet', 'Mini bokit poulet',              'caraibes'),
   ('mini-bokit-morue',  'Mini bokit morue',               'caraibes'),
-  ('mini-bokit-steak',  'Mini bokit steak haché cheddar', 'caraibes')
+  ('mini-bokit-steak',  'Mini bokit steak haché fromage', 'caraibes')
 on conflict (id) do update set name = excluded.name, univers = excluded.univers, active = true;
 
 update public.items set active = false where id in ('accras', 'mini-bokit');

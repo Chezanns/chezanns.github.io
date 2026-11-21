@@ -123,7 +123,7 @@ insert into public.items (id, name, univers) values
   ('sandwich-madras',        'Mini sandwich madras',                               'caraibes'),
   ('mini-bokit-poulet',      'Mini bokit poulet',                                  'caraibes'),
   ('mini-bokit-morue',       'Mini bokit morue',                                   'caraibes'),
-  ('mini-bokit-steak',       'Mini bokit steak haché cheddar',                     'caraibes'),
+  ('mini-bokit-steak',       'Mini bokit steak haché fromage',                     'caraibes'),
   ('dize-mile',              'Dizé milé salé au poulet',                           'caraibes'),
   ('kalawang',               'Kalawang (salade de mangue)',                        'caraibes'),
   ('navette-poulet-fume',    'Navette au poulet fumé',                             'caraibes'),
