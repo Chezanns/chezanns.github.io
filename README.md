@@ -76,6 +76,14 @@ Secrets Supabase : `SMTP_USER` (adresse Gmail d'Annie), `SMTP_PASS` (mot de pass
 et en option `REPLY_TO` (adresse qui reçoit les réponses des clients, ex. iCloud d'Annie), `MAIL_FROM_NAME`, `PICKUP_NOTE`, `CONTACT_PHONE`, `NOTIFY_EMAIL` (copie de chaque commande pour Annie).
 La fonction `notify-ready` garde « Enforce JWT verification » activé.
 
+## Boutique de Noël
+
+- Produits, prix, minimums et dates : `js/config.js` (bloc `NOEL`) **et** table `products` dans Supabase (le serveur vérifie les prix).
+- Dates et acompte côté serveur (secrets facultatifs, valeurs par défaut dans `create-order`) :
+  `NOEL_DEPOSIT_PERCENT` (50), `NOEL_LAST_ORDER_DAY` (2026-12-11), `NOEL_FIRST_PICKUP` (2026-12-14), `NOEL_LAST_PICKUP` (2026-12-22), `NOEL_MAX_BOUDIN_G` (10000).
+- La rubrique disparaît toute seule du site après le dernier jour de retrait (ou mettre `ENABLED: false`).
+- Installation : lancer `supabase/noel.sql`, puis redéployer `create-order`, `stripe-webhook` et `notify-ready`.
+
 ---
 
 ## Modifier les box ou les prix

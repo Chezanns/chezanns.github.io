@@ -1,5 +1,8 @@
-// Chez Ann's — création d'une commande + session de paiement Stripe (acompte ou totalité)
-// Secrets nécessaires : STRIPE_SECRET_KEY, SITE_URL (+ optionnels DEPOSIT_PERCENT, LEAD_DAYS)
+// Chez Ann's — création d'une commande (box ou boutique de Noël) + session de paiement Stripe (acompte ou totalité)
+// Secrets nécessaires : STRIPE_SECRET_KEY, SITE_URL
+// Optionnels : DEPOSIT_PERCENT (box, 30), LEAD_DAYS (3),
+//              NOEL_DEPOSIT_PERCENT (50), NOEL_LAST_ORDER_DAY (2026-12-11),
+//              NOEL_FIRST_PICKUP (2026-12-14), NOEL_LAST_PICKUP (2026-12-22), NOEL_MAX_BOUDIN_G (10000)
 import Stripe from "npm:stripe@16.12.0";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -15,6 +18,13 @@ const supabase = createClient(
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "").replace(/\/?$/, "/");
 const DEPOSIT_PERCENT = Number(Deno.env.get("DEPOSIT_PERCENT") ?? "30");
 const LEAD_DAYS = Number(Deno.env.get("LEAD_DAYS") ?? "3");
+// Boutique de Noël (garder les mêmes valeurs que NOEL dans js/config.js)
+const NOEL_DEPOSIT_PERCENT = Number(Deno.env.get("NOEL_DEPOSIT_PERCENT") ?? "50");
+const NOEL_LAST_ORDER_DAY = Deno.env.get("NOEL_LAST_ORDER_DAY") ?? "2026-12-11";
+const NOEL_FIRST_PICKUP = Deno.env.get("NOEL_FIRST_PICKUP") ?? "2026-12-14";
+const NOEL_LAST_PICKUP = Deno.env.get("NOEL_LAST_PICKUP") ?? "2026-12-22";
+const NOEL_MAX_BOUDIN_G = Number(Deno.env.get("NOEL_MAX_BOUDIN_G") ?? "10000");
+const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
 // Garder la même liste que SLOTS dans js/config.js
 const SLOTS = ["10h – 12h", "14h – 16h", "17h – 19h"];
 
@@ -36,6 +46,10 @@ const addDays = (iso: string, n: number) => {
 };
 const dateFr = (iso: string) =>
   new Date(iso + "T12:00:00Z").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const qtyLabel = (unit: string, q: number) =>
+  unit === "kg"
+    ? (q < 1000 ? `${q} g` : (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg")
+    : `${q} pièce${q > 1 ? "s" : ""}`;
 const makeRef = () => {
   const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "";
@@ -65,6 +79,82 @@ Deno.serve(async (req) => {
       return fail(`Les commandes se font au moins ${LEAD_DAYS * 24} h avant la date de retrait.`);
     }
     if (!SLOTS.includes(pickup_slot)) return fail("Créneau invalide.");
+    const pay_full = b.pay_full === true;
+    const customer = { customer_name, phone, email, notes: notes || null, pickup_date, pickup_slot };
+
+    // ══════════════ Boutique de Noël ══════════════
+    if (b.kind === "noel") {
+      if (parisToday() > NOEL_LAST_ORDER_DAY) return fail("Les commandes de Noël sont closes.");
+      if (pickup_date < NOEL_FIRST_PICKUP || pickup_date > NOEL_LAST_PICKUP) {
+        return fail(`Retrait possible du ${dateFr(NOEL_FIRST_PICKUP)} au ${dateFr(NOEL_LAST_PICKUP)}.`);
+      }
+      const wanted = new Map<string, number>();
+      for (const l of Array.isArray(b.lines) ? b.lines.slice(0, 30) : []) {
+        const id = str(l?.id, 60);
+        const q = Math.floor(Number(l?.qty));
+        if (id && q > 0) wanted.set(id, q);
+      }
+      if (!wanted.size) return fail("Votre commande de Noël est vide.");
+      const { data: products } = await supabase.from("products").select("*").in("id", [...wanted.keys()]).eq("active", true);
+      if (!products || products.length !== wanted.size) return fail("Un des produits n'est plus disponible.");
+
+      // deno-lint-ignore no-explicit-any
+      const lines: any[] = [];
+      let total_cents = 0, boudin_g = 0;
+      for (const p of products.sort((a, z) => a.sort - z.sort)) {
+        const q = wanted.get(p.id)!;
+        if (q < p.min_qty) return fail(`${p.name} : minimum ${qtyLabel(p.unit, p.min_qty)}.`);
+        if (q % p.step) return fail(`${p.name} : par tranche de ${qtyLabel(p.unit, p.step)}.`);
+        const line_cents = p.unit === "kg" ? Math.round((p.price_cents * q) / 1000) : p.price_cents * q;
+        if (p.is_boudin) boudin_g += q;
+        total_cents += line_cents;
+        lines.push({ id: p.id, name: p.name, unit: p.unit, qty: q, line_cents, boudin: p.is_boudin });
+      }
+      if (boudin_g > NOEL_MAX_BOUDIN_G) return fail(`Maximum ${qtyLabel("kg", NOEL_MAX_BOUDIN_G)} de boudin par commande.`);
+      let spice = 0;
+      if (boudin_g > 0) {
+        spice = Number(b.spice);
+        if (!Number.isInteger(spice) || spice < 0 || spice > 3) return fail("Choisissez le niveau d'épices des boudins.");
+      }
+      const deposit_cents = pay_full ? total_cents : Math.round((total_cents * NOEL_DEPOSIT_PERCENT) / 100);
+      const ref = makeRef();
+      const { data: order, error } = await supabase.from("orders").insert({
+        ...customer, ref, kind: "noel", box_id: null, box_name: "Commande de Noël", qty: 1,
+        items: lines.map((l) => `${l.name} — ${qtyLabel(l.unit, l.qty)}`), lines, spice,
+        total_cents, deposit_cents, pay_full, status: "attente_paiement",
+      }).select("id").single();
+      if (error) throw error;
+
+      const rest = ((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",");
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer_email: email,
+        locale: "fr",
+        line_items: [{
+          quantity: 1,
+          price_data: {
+            currency: "eur",
+            unit_amount: deposit_cents,
+            product_data: {
+              name: pay_full ? "Commande de Noël — paiement complet" : `Acompte ${NOEL_DEPOSIT_PERCENT} % — Commande de Noël`,
+              description: lines.map((l) => `${l.name} ${qtyLabel(l.unit, l.qty)}`).join(", ") +
+                (boudin_g ? ` · Boudins : ${SPICE_LABELS[spice]}` : "") +
+                ` · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref}` +
+                (pay_full ? " · Rien à régler au retrait" : ` · Solde de ${rest} € à régler au retrait`),
+            },
+          },
+        }],
+        metadata: { order_id: order.id, ref },
+        payment_intent_data: { metadata: { order_id: order.id, ref } },
+        expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+        success_url: `${SITE_URL}?commande=ok&ref=${ref}`,
+        cancel_url: `${SITE_URL}?commande=annulee#noel`,
+      });
+      await supabase.from("orders").update({ stripe_session_id: session.id }).eq("id", order.id);
+      return json({ url: session.url });
+    }
+
+    // ══════════════ Box ══════════════
 
     // ── Box ──
     const { data: box } = await supabase.from("boxes").select("*")
@@ -85,16 +175,12 @@ Deno.serve(async (req) => {
     // Niveau d'épices : 0 pas épicé, 1 peu épicé, 2 épicé, 3 ça décoiffe
     const spice = Number(b.spice);
     if (!Number.isInteger(spice) || spice < 0 || spice > 3) return fail("Choisissez le niveau d'épices.");
-    const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
 
     // On garde l'ordre choisi par le client
     const itemNames = ids.map((id) => items.find((i) => i.id === id)!.name);
 
     const ref = makeRef();
-    const base = {
-      ref, box_id: box.id, box_name: box.name, items: itemNames, spice,
-      customer_name, phone, email, notes: notes || null, pickup_date, pickup_slot,
-    };
+    const base = { ...customer, ref, kind: "box", box_id: box.id, box_name: box.name, items: itemNames, spice };
 
     // ── Box sur devis : simple demande, pas de paiement ──
     if (box.price_cents === null) {
@@ -109,7 +195,6 @@ Deno.serve(async (req) => {
     const qty = Math.min(10, Math.max(1, Math.floor(Number(b.qty) || 1)));
     const total_cents = box.price_cents * qty;
     // Le client choisit : acompte (DEPOSIT_PERCENT %) ou totalité
-    const pay_full = b.pay_full === true;
     const deposit_cents = pay_full ? total_cents : Math.round((total_cents * DEPOSIT_PERCENT) / 100);
     const rest = ((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",");
 

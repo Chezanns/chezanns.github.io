@@ -21,6 +21,25 @@ window.CHEZ_ANNS_CONFIG = {
   PICKUP_PLACE: "Essonne (91)",
   PICKUP_INFO: "L'adresse exacte vous est envoyée par e-mail dès que votre box est prête.",
 
+  // ── Boutique de Noël ── (garder les mêmes valeurs côté serveur : create-order)
+  NOEL: {
+    ENABLED: true,
+    DEPOSIT_PERCENT: 50,
+    LAST_ORDER_DAY: "2026-12-11", // dernier jour pour commander
+    FIRST_PICKUP: "2026-12-14",
+    LAST_PICKUP: "2026-12-22",
+    MAX_BOUDIN_G: 10000,          // 10 kg de boudin maximum par commande
+    // unit "piece" : prix à la pièce, quantités en pièces ; unit "kg" : prix au kilo, quantités en grammes
+    PRODUCTS: [
+      { id: "dize-mile-sucre", group: "douceurs", name: "Dizé milé", desc: "Petit gâteau fourré à la crème", unit: "piece", price: 1.25, min: 6, step: 1 },
+      { id: "comtesses",       group: "douceurs", name: "Comtesses", desc: "Petits gâteaux sablés",          unit: "piece", price: 0.50, min: 6, step: 1 },
+      { id: "boudin-creole",   group: "boudins",  name: "Boudin créole",      unit: "kg", price: 18, min: 500, step: 500 },
+      { id: "boudin-morue",    group: "boudins",  name: "Boudin de morue",    unit: "kg", price: 30, min: 500, step: 500 },
+      { id: "boudin-poulet",   group: "boudins",  name: "Boudin de poulet",   unit: "kg", price: 25, min: 500, step: 500 },
+      { id: "boudin-crevette", group: "boudins",  name: "Boudin de crevette", unit: "kg", price: 35, min: 500, step: 500 }
+    ]
+  },
+
   // Liens du pied de page
   INSTAGRAM_URL: "",
   CONTACT_PHONE: ""

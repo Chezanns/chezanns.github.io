@@ -33,6 +33,7 @@
     <a href="#compose">Nos Mignardises</a>
     <a href="#box">Nos Box</a>
     <a href="#univers">À propos</a>
+    <a href="#noel" class="nav__noel" hidden>Noël</a>
   </nav>
 </header>
 
@@ -46,8 +47,11 @@
     <div class="hero__content">
       <h1 class="hero__title">Une touche de<br><span>soleil</span><br>dans chaque bouchée…</h1>
       <p class="hero__text">Des mignardises créoles, gourmandes et authentiques pour tous vos événements.</p>
+      <div class="hero__ctas">
       <a href="#box" class="btn btn--gold">Découvrir nos box
         <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+      <a href="#noel" class="btn btn--noel" id="hero-noel" hidden>Spécial Noël</a>
+      </div>
     </div>
   </section>
 
@@ -169,7 +173,43 @@
 
   </section>
 
-  <!-- (Rubrique Spécial Noël à ajouter ici) -->
+  <!-- SPÉCIAL NOËL -->
+  <section id="noel" class="noel" hidden>
+    <svg class="noel__wave noel__wave--top" viewBox="0 0 1440 50" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1440 V14 C 1180 46, 900 6, 640 28 C 400 48, 180 12, 0 30 Z"/></svg>
+    <svg class="noel__wave noel__wave--bottom" viewBox="0 0 1440 50" preserveAspectRatio="none" aria-hidden="true"><path d="M0 26 C 260 4, 560 44, 860 22 C 1120 4, 1320 18, 1440 28 V50 H0 Z"/></svg>
+    <img class="noel__bow noel__bow--left" src="images/noeud-gauche.png" alt="">
+    <img class="noel__bow noel__bow--right" src="images/noeud-droit.png" alt="">
+    <div class="noel__inner">
+      <div class="noel__head">
+        <span class="noel__tag">Boutique de saison</span>
+        <h2>Spécial Noël</h2>
+        <p>Les douceurs et les boudins d'Annie pour vos tables de fêtes.</p>
+        <p class="noel__dates" id="noel-dates"></p>
+      </div>
+
+      <p class="noel__closed" id="noel-closed" hidden>Les commandes de Noël sont closes. Merci à tous et joyeuses fêtes !</p>
+
+      <div class="noel__groups" id="noel-groups">
+        <div class="noel__group">
+          <h3>Les douceurs</h3>
+          <p class="noel__rule">À la pièce · minimum 6 pièces</p>
+          <div class="noel__list" id="noel-douceurs"></div>
+        </div>
+        <div class="noel__group">
+          <h3>Les boudins</h3>
+          <p class="noel__rule">Au poids · par tranche de 500 g · 10 kg maximum par commande</p>
+          <div class="noel__list" id="noel-boudins"></div>
+          <div class="spice-mini spice-mini--noel" id="noel-spice" role="radiogroup" aria-labelledby="noel-spice-title">
+            <span class="spice-mini__title" id="noel-spice-title">Épices des boudins :</span>
+            <label class="spice-mini__opt"><input type="radio" name="noel_spice" value="0"><span class="spice-mini__ic spice-mini__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
+            <label class="spice-mini__opt"><input type="radio" name="noel_spice" value="1"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Peu épicé</label>
+            <label class="spice-mini__opt"><input type="radio" name="noel_spice" value="2"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Épicé</label>
+            <label class="spice-mini__opt"><input type="radio" name="noel_spice" value="3"><span class="spice-mini__ic"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Ça décoiffe</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- BANDEAU -->
   <section class="band">
@@ -221,6 +261,14 @@
 </footer>
 
 <!-- Barre de commande (apparaît quand une box est choisie) -->
+<div class="cartbar cartbar--noel" id="noelbar" hidden>
+  <div class="cartbar__info">
+    <strong>Commande de Noël · <span id="noelbar-total">0 €</span></strong>
+    <span id="noelbar-count"></span>
+  </div>
+  <button type="button" class="btn btn--gold" id="noelbar-go">Commander</button>
+</div>
+
 <div class="cartbar" id="cartbar" hidden>
   <div class="cartbar__info">
     <strong id="cartbar-name">Box</strong>

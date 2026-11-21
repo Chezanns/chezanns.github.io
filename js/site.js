@@ -5,7 +5,7 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  var state = { box: null, qty: 1 };
+  var state = { box: null, qty: 1, mode: "box", noel: {} };
   var cards = $$(".box-card");
   var checks = $$('.menu input[type="checkbox"]');
 
@@ -110,6 +110,7 @@
     if (!state.box) {
       status.textContent = "Choisissez d'abord une box ci-dessus.";
       bar.hidden = true;
+      syncBars();
       return;
     }
     var n = selectedItems().length;
@@ -120,6 +121,7 @@
     $("#cartbar-name").textContent = state.box.name + (state.box.price ? " · " + euros(state.box.price) : " · sur devis");
     $("#cartbar-count").textContent = plural(n, "variété choisie", "variétés choisies") + " sur " + state.box.max;
     $("#cartbar-go").disabled = n === 0;
+    syncBars();
   }
 
   // ── Fenêtre de commande ──────────────────────────────────
@@ -146,9 +148,12 @@
     r.addEventListener("change", function () { renderRecap(); });
   });
 
-  function isQuote() { return state.box && state.box.price === null; }
+  function isQuote() { return state.mode !== "noel" && !!state.box && state.box.price === null; }
 
   function renderRecap() {
+    if (state.mode === "noel") return renderNoelRecap();
+    $("#recap-pct").textContent = pct;
+    $("#recap-spice").hidden = false;
     var b = state.box;
     $("#recap-name").textContent = b.name;
     $("#qty-value").textContent = state.qty;
@@ -197,6 +202,7 @@
 
   $("#cartbar-go").addEventListener("click", function () {
     if (!state.box || !selectedItems().length) return;
+    state.mode = "box";
     if (getSpice() === null) {
       var sp = $("#spice");
       sp.classList.remove("is-missing");
@@ -207,14 +213,22 @@
       return;
     }
     var min = addDays(parisToday(), Number(C.LEAD_DAYS || 3));
+    openOrder(min, "", "Commande au moins 72 h avant le retrait : premier jour possible le <strong>" + dayFr(min) + "</strong>.");
+  });
+
+  function dayFr(iso, opts) {
+    return new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", opts || { weekday: "long", day: "numeric", month: "long" });
+  }
+  function openOrder(min, max, hint) {
     var dateInput = form.elements.pickup_date;
     dateInput.min = min;
-    $("#date-min").textContent = new Date(min + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
-    if (!dateInput.value || dateInput.value < min) dateInput.value = "";
+    dateInput.max = max;
+    $("#date-hint").innerHTML = hint;
+    if (!dateInput.value || dateInput.value < min || (max && dateInput.value > max)) dateInput.value = "";
     $("#form-error").hidden = true;
     renderRecap();
     dlg.showModal();
-  });
+  }
 
   $$("[data-close]").forEach(function (b) {
     b.addEventListener("click", function () { b.closest("dialog").close(); });
@@ -239,14 +253,28 @@
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.value.trim())) return showError("Indiquez une adresse e-mail valide.");
     if (isQuote() && !(Number(f.guests.value) > 0)) return showError("Indiquez le nombre de personnes.");
     if (!f.pickup_date.value) return showError("Choisissez une date.");
-    if (f.pickup_date.value < f.pickup_date.min) return showError("La date doit être au plus tôt le " + new Date(f.pickup_date.min + "T12:00:00").toLocaleDateString("fr-FR") + ".");
+    if (f.pickup_date.value < f.pickup_date.min) return showError("La date doit être au plus tôt le " + dayFr(f.pickup_date.min) + ".");
+    if (f.pickup_date.max && f.pickup_date.value > f.pickup_date.max) return showError("La date doit être au plus tard le " + dayFr(f.pickup_date.max) + ".");
     if (!f.consent.checked) return showError("Merci de cocher la case de confirmation.");
 
     if (!C.SUPABASE_URL || C.SUPABASE_URL.indexOf("VOTRE") !== -1) {
       return showError("Le site n'est pas encore relié à Supabase (fichier js/config.js).");
     }
 
-    var payload = {
+    var customer = {
+      customer_name: f.customer_name.value.trim(),
+      phone: f.phone.value.trim(),
+      email: f.email.value.trim(),
+      pickup_date: f.pickup_date.value,
+      pickup_slot: f.pickup_slot.value,
+      notes: f.notes.value.trim(),
+      pay_full: !isQuote() && payFull()
+    };
+    var payload = state.mode === "noel" ? Object.assign({
+      kind: "noel",
+      lines: noelLines().map(function (l) { return { id: l.p.id, qty: l.qty }; }),
+      spice: noelHasBoudin() ? getNoelSpice() : 0
+    }, customer) : {
       box_id: state.box.id,
       qty: isQuote() ? 1 : state.qty,
       items: selectedItems().map(function (c) { return c.value; }),
@@ -304,6 +332,193 @@
     if (dflt) dflt.checked = true;
     updateStatus();
   }
+
+
+  // ── Boutique de Noël ─────────────────────────────────────
+  var N = C.NOEL || {};
+  var noelPct = Number(N.DEPOSIT_PERCENT || 50);
+  var noelProducts = N.PRODUCTS || [];
+
+  function qtyLabel(p, q) {
+    if (p.unit === "kg") return q < 1000 ? q + " g" : (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg";
+    return q + " pièce" + (q > 1 ? "s" : "");
+  }
+  function linePrice(p, q) { return p.unit === "kg" ? Math.round(p.price * q / 10) / 100 : Math.round(p.price * q * 100) / 100; }
+  function noelLines() {
+    return noelProducts.filter(function (p) { return state.noel[p.id] > 0; })
+      .map(function (p) { var q = state.noel[p.id]; return { p: p, qty: q, price: linePrice(p, q) }; });
+  }
+  function noelTotal() { return noelLines().reduce(function (s, l) { return s + l.price; }, 0); }
+  function boudinGrams() {
+    return noelProducts.filter(function (p) { return p.group === "boudins"; })
+      .reduce(function (s, p) { return s + (state.noel[p.id] || 0); }, 0);
+  }
+  function noelHasBoudin() { return boudinGrams() > 0; }
+  function getNoelSpice() {
+    var r = $('input[name="noel_spice"]:checked');
+    return r ? Number(r.value) : null;
+  }
+
+  function noelOpen() {
+    var today = parisToday();
+    var visible = N.ENABLED !== false && today <= (N.LAST_PICKUP || "2026-12-22");
+    var orderable = visible && today <= (N.LAST_ORDER_DAY || "2026-12-11");
+    return { visible: visible, orderable: orderable };
+  }
+
+  function renderNoel() {
+    var st = noelOpen();
+    $("#noel").hidden = !st.visible;
+    $(".nav__noel").hidden = !st.visible;
+    $("#hero-noel").hidden = !st.visible;
+    if (!st.visible) return;
+    $("#noel-dates").textContent = st.orderable
+      ? "Commandes jusqu'au " + dayFr(N.LAST_ORDER_DAY) + " · Retrait du " + dayFr(N.FIRST_PICKUP, { day: "numeric" }) + " au " + dayFr(N.LAST_PICKUP, { day: "numeric", month: "long" })
+      : "Retraits jusqu'au " + dayFr(N.LAST_PICKUP);
+    $("#noel-closed").hidden = st.orderable;
+    $("#noel-groups").hidden = !st.orderable;
+    if (!st.orderable) { $("#noelbar").hidden = true; return; }
+
+    ["douceurs", "boudins"].forEach(function (g) {
+      var box = $("#noel-" + g);
+      if (box.childElementCount) return;
+      noelProducts.filter(function (p) { return p.group === g; }).forEach(function (p) {
+        var el = document.createElement("div");
+        el.className = "noel-item";
+        el.dataset.id = p.id;
+        var price = p.unit === "kg" ? euros(p.price) + " le kilo" : euros(p.price) + " la pièce";
+        el.innerHTML =
+          '<div class="noel-item__txt">' +
+            '<span class="noel-item__name"></span>' +
+            (p.desc ? '<span class="noel-item__desc"></span>' : "") +
+            '<span class="noel-item__price"></span>' +
+            '<span class="noel-item__line" aria-live="polite"></span>' +
+          "</div>" +
+          '<div class="stepper">' +
+            '<button type="button" data-step="-1">−</button>' +
+            "<output>0</output>" +
+            '<button type="button" data-step="1">+</button>' +
+          "</div>";
+        $(".noel-item__name", el).textContent = p.name;
+        if (p.desc) $(".noel-item__desc", el).textContent = p.desc;
+        $(".noel-item__price", el).textContent = price + " · min. " + qtyLabel(p, p.min);
+        $('[data-step="-1"]', el).setAttribute("aria-label", "Retirer " + p.name);
+        $('[data-step="1"]', el).setAttribute("aria-label", "Ajouter " + p.name);
+        box.appendChild(el);
+      });
+    });
+    updateNoel();
+  }
+
+  function stepNoel(id, dir) {
+    var p = noelProducts.filter(function (x) { return x.id === id; })[0];
+    var q = state.noel[id] || 0;
+    if (dir > 0) {
+      var next = q === 0 ? p.min : q + p.step;
+      if (p.group === "boudins" && boudinGrams() - q + next > (N.MAX_BOUDIN_G || 10000)) {
+        toast("Maximum " + qtyLabel({ unit: "kg" }, N.MAX_BOUDIN_G || 10000) + " de boudin par commande.");
+        return;
+      }
+      q = next;
+    } else {
+      q = q - p.step < p.min ? 0 : q - p.step;
+    }
+    state.noel[id] = q;
+    updateNoel();
+  }
+
+  function updateNoel() {
+    $$(".noel-item").forEach(function (el) {
+      var p = noelProducts.filter(function (x) { return x.id === el.dataset.id; })[0];
+      var q = state.noel[p.id] || 0;
+      $("output", el).textContent = q ? qtyLabel(p, q) : "0";
+      $(".noel-item__line", el).textContent = q ? "= " + euros(linePrice(p, q)) : "";
+      $('[data-step="-1"]', el).disabled = !q;
+      el.classList.toggle("has-qty", q > 0);
+    });
+    var lines = noelLines();
+    var bar = $("#noelbar");
+    bar.hidden = !lines.length;
+    $("#noelbar-total").textContent = euros(noelTotal());
+    var g = boudinGrams();
+    $("#noelbar-count").textContent = lines.length + " produit" + (lines.length > 1 ? "s" : "") +
+      (g ? " · " + qtyLabel({ unit: "kg" }, g) + " de boudin" : "");
+    $("#noel-spice").hidden = !g;
+    syncBars();
+  }
+  function syncBars() {
+    var stack = !$("#cartbar").hidden && !$("#noelbar").hidden;
+    $("#noelbar").classList.toggle("cartbar--stack", stack);
+  }
+
+  $("#noel").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-step]");
+    if (!b) return;
+    stepNoel(b.closest(".noel-item").dataset.id, Number(b.dataset.step));
+  });
+  $$('input[name="noel_spice"]').forEach(function (r) {
+    r.addEventListener("change", function () { $("#noel-spice").classList.remove("is-missing"); });
+  });
+
+  $("#noelbar-go").addEventListener("click", function () {
+    if (!noelLines().length) return;
+    if (noelHasBoudin() && getNoelSpice() === null) {
+      var sp = $("#noel-spice");
+      sp.classList.remove("is-missing");
+      void sp.offsetWidth;
+      sp.classList.add("is-missing");
+      sp.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast("Choisissez le niveau d'épices de vos boudins.");
+      return;
+    }
+    state.mode = "noel";
+    var min = addDays(parisToday(), Number(C.LEAD_DAYS || 3));
+    if (min < N.FIRST_PICKUP) min = N.FIRST_PICKUP;
+    openOrder(min, N.LAST_PICKUP, "Retrait possible du <strong>" + dayFr(min) + "</strong> au <strong>" + dayFr(N.LAST_PICKUP) + "</strong>.");
+  });
+
+  function renderNoelRecap() {
+    $("#recap-name").textContent = "Commande de Noël";
+    $("#qty-wrap").hidden = true;
+    var list = $("#recap-items");
+    list.innerHTML = "";
+    noelLines().forEach(function (l) {
+      var li = document.createElement("li");
+      li.textContent = l.p.name + " · " + qtyLabel(l.p, l.qty) + " · " + euros(l.price);
+      list.appendChild(li);
+    });
+    var hasB = noelHasBoudin();
+    $("#recap-spice").hidden = !hasB;
+    if (hasB) {
+      var sp = getNoelSpice() || 0, ch = "";
+      for (var i = 0; i < Math.max(1, sp); i++) ch += '<svg class="chili"' + (sp ? "" : ' style="filter:grayscale(1);opacity:.4"') + ' aria-hidden="true"><use href="#chili"/></svg>';
+      $("#recap-spice").innerHTML = ch + "<span>Boudins : " + SPICE_LABELS[sp] + "</span>";
+    }
+    $("#recap-money").hidden = false;
+    $("#recap-quote").hidden = true;
+    $$(".quote-only", form).forEach(function (el) { el.hidden = true; $("input", el).required = false; });
+    $("#date-label").textContent = "Date de retrait *";
+    $("#recap-pct").textContent = noelPct;
+    var total = noelTotal();
+    var dep = Math.round(total * noelPct) / 100;
+    $("#recap-total").textContent = euros(total);
+    $("#recap-deposit").textContent = euros(dep);
+    $("#recap-rest").textContent = euros(Math.round((total - dep) * 100) / 100);
+    $("#recap-full").textContent = euros(total);
+    $("#submit-btn").textContent = payFull() ? "Payer et réserver" : "Payer l'acompte et réserver";
+    $("#consent-text").textContent = "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
+      (payFull() ? "" : ", que le solde est à régler sur place") +
+      " et que l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant le retrait.";
+    $("#cancel-note").hidden = false;
+  }
+
+  function resetNoel() {
+    state.noel = {};
+    $$('input[name="noel_spice"]').forEach(function (r) { r.checked = false; });
+    updateNoel();
+  }
+
+  renderNoel();
 
   // ── Retour après paiement Stripe ─────────────────────────
   function showReturn(title, text) {

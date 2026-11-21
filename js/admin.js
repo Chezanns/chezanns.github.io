@@ -69,6 +69,16 @@
       o(3, "17h – 19h", "prestige", 1, "Stéphane Moreau", "06 33 21 45 87", ["Mini burger", "Accras de morue", "Mini bokit poulet", "Toast avocat crevette", "Dizé milé salé au poulet", "Mini quiche saumon"], "confirmee", { notes: "Anniversaire 40 ans" }),
       o(4, "10h – 12h", "signature", 1, "Nadia Rivière", "06 71 09 22 15", ["Accras de morue", "Kalawang (salade de mangue)", "Mini sandwich madras"], "confirmee", { pay_full: true, deposit_cents: 6500 }),
       o(11, "14h – 16h", "prestige", 2, "Lydie Marceau", "06 55 18 72 40", ["Accras de morue", "Mini burger", "Samoussa poulet"], "confirmee", { notes: "Baptême" }),
+      Object.assign(o(2, "17h – 19h", "decouverte", 1, "Josiane Bellay", "06 44 21 87 10", [], "confirmee"), {
+        kind: "noel", box_id: null, box_name: "Commande de Noël", spice: 2, total_cents: 6150, deposit_cents: 3075,
+        items: ["Dizé milé — 12 pièces", "Boudin créole — 1,5 kg", "Boudin de morue — 500 g"],
+        lines: [{ name: "Dizé milé", unit: "piece", qty: 12, boudin: false }, { name: "Boudin créole", unit: "kg", qty: 1500, boudin: true }, { name: "Boudin de morue", unit: "kg", qty: 500, boudin: true }]
+      }),
+      Object.assign(o(5, "10h – 12h", "decouverte", 1, "Patrick Lamy", "07 12 98 33 21", [], "confirmee"), {
+        kind: "noel", box_id: null, box_name: "Commande de Noël", spice: 3, total_cents: 7250, deposit_cents: 7250, pay_full: true,
+        items: ["Comtesses — 24 pièces", "Boudin de crevette — 1,5 kg"],
+        lines: [{ name: "Comtesses", unit: "piece", qty: 24, boudin: false }, { name: "Boudin de crevette", unit: "kg", qty: 1500, boudin: true }]
+      }),
       o(9, "14h – 16h", "caraibes", 1, "Fabrice Delage", "07 82 63 14 50", ["Accras de morue", "Mini bokit poulet", "Dizé milé salé au poulet", "Verrine guacamole", "Kalawang (salade de mangue)"], "devis", { guests: 40, notes: "Pour un mariage, on peut en parler ?" })
     ];
   }
@@ -145,6 +155,9 @@
       ? orders.filter(function (o) { return o.status === "devis" || (showDone && o.status === "devis_traite"); })
       : sales.filter(function (o) { return showDone || o.status !== "recuperee"; });
 
+    visible.sort(function (a, b) {
+      return a.pickup_date < b.pickup_date ? -1 : a.pickup_date > b.pickup_date ? 1 : (a.pickup_slot < b.pickup_slot ? -1 : a.pickup_slot > b.pickup_slot ? 1 : 0);
+    });
     renderKpis(sales, quotes);
     renderList(visible, isQuotes);
     renderPrep(sales.filter(function (o) { return o.status === "confirmee"; }));
@@ -155,15 +168,17 @@
 
   function renderKpis(sales, quotes) {
     var toPrep = sales.filter(function (o) { return o.status === "confirmee"; });
-    var nBoxes = toPrep.reduce(function (s, o) { return s + o.qty; }, 0);
-    var nReady = sales.filter(function (o) { return o.status === "prete"; }).reduce(function (s, o) { return s + o.qty; }, 0);
+    var isBox = function (o) { return o.kind !== "noel"; };
+    var nBoxes = toPrep.filter(isBox).reduce(function (s, o) { return s + o.qty; }, 0);
+    var nNoel = toPrep.filter(function (o) { return !isBox(o); }).length;
+    var nReady = sales.filter(function (o) { return o.status === "prete" && isBox(o); }).reduce(function (s, o) { return s + o.qty; }, 0);
     var paid = sales.reduce(function (s, o) { return s + (o.deposit_paid ? o.deposit_cents || 0 : 0); }, 0);
     var rest = sales.filter(function (o) { return o.status !== "recuperee"; })
       .reduce(function (s, o) { return s + ((o.total_cents || 0) - (o.deposit_paid ? o.deposit_cents || 0 : 0)); }, 0);
     var label = { today: "aujourd'hui", week: "sur 7 jours", all: "à venir", quotes: "à venir" }[tab];
     $("#kpis").innerHTML =
       kpi("Commandes", sales.length, label, "main") +
-      kpi("Box à préparer", nBoxes, nReady + " déjà prête" + (nReady > 1 ? "s" : "")) +
+      kpi("Box à préparer", nBoxes, nReady + " déjà prête" + (nReady > 1 ? "s" : "") + (nNoel ? " · + " + nNoel + " commande" + (nNoel > 1 ? "s" : "") + " de Noël" : "")) +
       kpi("Déjà encaissé", eur(paid), label, "green") +
       kpi("Reste à encaisser", eur(rest), quotes.length + " devis en attente");
   }
@@ -194,7 +209,10 @@
 
   function orderCard(o) {
     var cls = o.status === "prete" ? " is-ready" : (o.status === "recuperee" || o.status === "devis_traite") ? " is-done" : "";
-    var badges = spiceBadge(o.spice);
+    var isNoel = o.kind === "noel";
+    var noelBoudin = isNoel && (o.lines || []).some(function (l) { return l.boudin; });
+    var badges = isNoel ? '<span class="badge badge--noel">Noël</span>' : "";
+    if (!isNoel || noelBoudin) badges += spiceBadge(o.spice);
     if (o.status === "devis" || o.status === "devis_traite") {
       badges += '<span class="badge badge--quote">' + (o.status === "devis" ? "Devis à faire" : "Devis traité") + " · " + esc(o.guests) + " pers.</span>";
     } else {
@@ -218,7 +236,7 @@
     return '<article class="order' + cls + '" data-id="' + esc(o.id) + '">' +
       '<div class="order__time"><small>' + (o.status.indexOf("devis") === 0 ? "Souhaité" : "Retrait") + "</small><strong>" + esc(o.pickup_slot) + "</strong></div>" +
       '<div class="order__body">' +
-        '<div class="order__title"><b>' + esc(o.box_name) + "</b>" + (o.guests ? "" : '<span class="qty">× ' + esc(o.qty) + "</span>") + '<span class="ref">' + esc(o.ref) + "</span></div>" +
+        '<div class="order__title"><b>' + esc(o.box_name) + "</b>" + (o.guests || isNoel ? "" : '<span class="qty">× ' + esc(o.qty) + "</span>") + '<span class="ref">' + esc(o.ref) + "</span></div>" +
         '<div class="order__client">' + esc(o.customer_name) + ' · <a href="' + esc(telHref(o.phone)) + '">' + esc(o.phone) + "</a></div>" +
         '<div class="chips">' + (o.items || []).map(function (i) { return '<span class="chip">' + esc(i) + "</span>"; }).join("") + "</div>" +
         '<div class="badges">' + badges + "</div>" +
@@ -233,9 +251,16 @@
 
   function renderPrep(toPrep) {
     var labels = { today: "pour aujourd'hui", week: "sur les 7 prochains jours", all: "pour toutes les commandes à venir" };
-    $("#prep-sub").textContent = "Box " + labels[tab] + ", hors box déjà prêtes.";
-    var byBox = {}, byItem = {};
+    $("#prep-sub").textContent = "Commandes " + labels[tab] + ", hors commandes déjà prêtes.";
+    var byBox = {}, byItem = {}, byNoel = {};
     toPrep.forEach(function (o) {
+      if (o.kind === "noel") {
+        (o.lines || []).forEach(function (l) {
+          var k = l.name + "|" + l.unit + "|" + (l.boudin ? Number(o.spice) || 0 : -1);
+          byNoel[k] = (byNoel[k] || 0) + Number(l.qty);
+        });
+        return;
+      }
       var key = o.box_name + "|" + (Number(o.spice) || 0);
       byBox[key] = (byBox[key] || 0) + o.qty;
       var pieces = (PIECES[o.box_id] || 0) * o.qty;
@@ -249,7 +274,16 @@
           return '<div class="prep__row"><span class="prep__box">' + esc(parts[0]) +
             '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + "</small></span><b>" + byBox[k] + "</b></div>";
         }).join("")
-      : '<p class="prep__sub">Tout est prêt, bravo !</p>';
+      : (Object.keys(byNoel).length ? '<p class="prep__sub">Aucune box à préparer.</p>' : '<p class="prep__sub">Tout est prêt, bravo !</p>');
+    var noelKeys = Object.keys(byNoel).sort();
+    $("#prep-noel-wrap").hidden = !noelKeys.length;
+    $("#prep-noel").innerHTML = noelKeys.map(function (k) {
+      var p = k.split("|"), unit = p[1], lvl = Number(p[2]), q = byNoel[k];
+      var qty = unit === "kg" ? (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : q + " pc";
+      return '<div class="prep__row"><span class="prep__box">' + esc(p[0]) +
+        (lvl >= 0 ? '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + "</small>" : "") +
+        "</span><b>" + qty + "</b></div>";
+    }).join("");
     var items = Object.keys(byItem).sort(function (a, b) { return byItem[b] - byItem[a]; });
     $("#prep-items").innerHTML = items.length
       ? items.map(function (k) { return '<div class="prep__row prep__row--small"><span>' + esc(k) + "</span><b>≈ " + Math.round(byItem[k]) + "</b></div>"; }).join("")

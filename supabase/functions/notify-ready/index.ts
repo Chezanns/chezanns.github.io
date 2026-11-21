@@ -94,7 +94,8 @@ async function sendReady(o: any) {
   const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
   const body = `
 <p>Bonjour ${esc(o.customer_name)},</p>
-<p>Bonne nouvelle : votre <b>${esc(o.box_name)}${o.qty > 1 ? " × " + esc(o.qty) : ""}</b> est <b>prête</b> !</p>
+<p>Bonne nouvelle : votre <b>${o.kind === "noel" ? "commande de Noël" : esc(o.box_name) + (o.qty > 1 ? " × " + esc(o.qty) : "")}</b> est <b>prête</b> !</p>
+${o.kind === "noel" ? `<p style="font-size:14px;color:#4A3427">${(o.items ?? []).map(esc).join(" · ")}</p>` : ""}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #EBD5BB;border-radius:14px;margin:16px 0">
 <tr><td style="padding:16px">
 <div style="font-size:13px;color:#6B4E3D;text-transform:uppercase;letter-spacing:1px">Rendez-vous</div>
@@ -107,7 +108,8 @@ ${note ? `<div style="font-size:14px;color:#4A3427;white-space:pre-line">${esc(n
 <p>${rest > 0
     ? `Il vous restera <b>${eur(rest)}</b> à régler au moment du retrait.`
     : "Tout est déjà réglé, vous n'avez plus qu'à venir la chercher."}</p>
-<p style="font-size:14px;color:#4A3427">Référence : <b>${esc(o.ref)}</b> · Épices : ${esc(SPICE_LABELS[o.spice ?? 0])}</p>
+<p style="font-size:14px;color:#4A3427">Référence : <b>${esc(o.ref)}</b>${
+    o.kind === "noel" && !(o.lines ?? []).some((l: { boudin?: boolean }) => l.boudin) ? "" : ` · Épices : ${esc(SPICE_LABELS[o.spice ?? 0])}`}</p>
 <p>Un empêchement ? Répondez à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
 <p>À tout à l'heure,<br><b>Annie — Chez Ann's</b></p>`;
   await sendMail(o.email, o.customer_name, `Votre commande Chez Ann's est prête (réf. ${o.ref})`, layout("Votre commande est prête !", body));

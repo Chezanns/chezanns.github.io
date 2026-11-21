@@ -50,9 +50,11 @@ function recap(o: any) {
     `<tr><td style="padding:6px 0;color:#6B4E3D;vertical-align:top;width:42%">${k}</td><td style="padding:6px 0;font-weight:bold">${v}</td></tr>`;
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #EBD5BB;border-radius:14px;padding:12px 16px;margin:16px 0">
 ${row("Référence", esc(o.ref))}
-${row("Box", `${esc(o.box_name)} × ${esc(o.qty)}`)}
-${row("Mignardises", (o.items ?? []).map(esc).join("<br>"))}
-${row("Épices", esc(SPICE_LABELS[o.spice ?? 0]))}
+${o.kind === "noel"
+    ? row("Commande", "Commande de Noël") + row("Produits", (o.items ?? []).map(esc).join("<br>")) +
+      ((o.lines ?? []).some((l: { boudin?: boolean }) => l.boudin) ? row("Épices des boudins", esc(SPICE_LABELS[o.spice ?? 0])) : "")
+    : row("Box", `${esc(o.box_name)} × ${esc(o.qty)}`) + row("Mignardises", (o.items ?? []).map(esc).join("<br>")) +
+      row("Épices", esc(SPICE_LABELS[o.spice ?? 0]))}
 ${row("Retrait", `${esc(dateFr(o.pickup_date))}<br>${esc(o.pickup_slot)}`)}
 ${row("Déjà payé", eur(o.deposit_cents ?? 0))}
 ${row("Reste à régler au retrait", rest > 0 ? eur(rest) : "Rien, tout est réglé")}
@@ -108,7 +110,7 @@ async function sendConfirmation(o: any) {
 <p>Merci pour votre commande ! Votre paiement de <b>${eur(o.deposit_cents ?? 0)}</b> est bien reçu et votre commande est <b>confirmée</b>.</p>
 <p>Annie s'occupe de la préparer avec amour pour le jour du retrait.</p>
 ${recap(o)}
-<p style="background:#F7B52A;border-radius:12px;padding:12px 14px;margin:0 0 14px"><b>Et ensuite ?</b> Vous recevrez un second e-mail dès que votre box sera prête, avec l'adresse exacte de retrait.</p>
+<p style="background:#F7B52A;border-radius:12px;padding:12px 14px;margin:0 0 14px"><b>Et ensuite ?</b> Vous recevrez un second e-mail dès que votre commande sera prête, avec l'adresse exacte de retrait.</p>
 <p style="font-size:13px;color:#6B4E3D">Annulation : l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant la date de retrait prévue.</p>
 <p>Une question ? Répondez simplement à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
 <p>À très vite,<br><b>Annie — Chez Ann's</b></p>`;
