@@ -2,7 +2,8 @@
 // Secrets nécessaires : STRIPE_SECRET_KEY, SITE_URL
 // Optionnels : DEPOSIT_PERCENT (box, 30), LEAD_DAYS (3),
 //              NOEL_DEPOSIT_PERCENT (50), NOEL_LAST_ORDER_DAY (2026-12-11),
-//              NOEL_FIRST_PICKUP (2026-12-14), NOEL_LAST_PICKUP (2026-12-22), NOEL_MAX_BOUDIN_G (10000)
+//              NOEL_FIRST_PICKUP (2026-12-14), NOEL_LAST_PICKUP (2026-12-22), NOEL_MAX_BOUDIN_G (10000),
+//              NOEL_BIG_ORDER_G (8000), NOEL_BIG_LEAD_DAYS (5)
 import Stripe from "npm:stripe@16.12.0";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -24,6 +25,8 @@ const NOEL_LAST_ORDER_DAY = Deno.env.get("NOEL_LAST_ORDER_DAY") ?? "2026-12-11";
 const NOEL_FIRST_PICKUP = Deno.env.get("NOEL_FIRST_PICKUP") ?? "2026-12-14";
 const NOEL_LAST_PICKUP = Deno.env.get("NOEL_LAST_PICKUP") ?? "2026-12-22";
 const NOEL_MAX_BOUDIN_G = Number(Deno.env.get("NOEL_MAX_BOUDIN_G") ?? "10000");
+const NOEL_BIG_ORDER_G = Number(Deno.env.get("NOEL_BIG_ORDER_G") ?? "8000"); // au-delà : délai allongé
+const NOEL_BIG_LEAD_DAYS = Number(Deno.env.get("NOEL_BIG_LEAD_DAYS") ?? "5");
 const SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
 // Garder la même liste que SLOTS dans js/config.js
 const SLOTS = ["10h – 12h", "14h – 16h", "17h – 19h"];
@@ -111,6 +114,9 @@ Deno.serve(async (req) => {
         lines.push({ id: p.id, name: p.name, unit: p.unit, qty: q, line_cents, boudin: p.is_boudin });
       }
       if (boudin_g > NOEL_MAX_BOUDIN_G) return fail(`Maximum ${qtyLabel("kg", NOEL_MAX_BOUDIN_G)} de boudin par commande.`);
+      if (boudin_g > NOEL_BIG_ORDER_G && pickup_date < addDays(parisToday(), NOEL_BIG_LEAD_DAYS)) {
+        return fail(`Au-delà de ${qtyLabel("kg", NOEL_BIG_ORDER_G)} de boudin, il faut compter ${NOEL_BIG_LEAD_DAYS} jours de préparation : choisissez une date à partir du ${dateFr(addDays(parisToday(), NOEL_BIG_LEAD_DAYS))}.`);
+      }
       let spice = 0;
       if (boudin_g > 0) {
         spice = Number(b.spice);

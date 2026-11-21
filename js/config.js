@@ -29,6 +29,8 @@ window.CHEZ_ANNS_CONFIG = {
     FIRST_PICKUP: "2026-12-14",
     LAST_PICKUP: "2026-12-22",
     MAX_BOUDIN_G: 10000,          // 10 kg de boudin maximum par commande
+    BIG_ORDER_G: 8000,            // au-delà de 8 kg de boudin…
+    BIG_LEAD_DAYS: 5,             // …5 jours de préparation minimum
     // unit "piece" : prix à la pièce, quantités en pièces ; unit "kg" : prix au kilo, quantités en grammes
     PRODUCTS: [
       { id: "dize-mile-sucre", group: "douceurs", name: "Dizé milé", desc: "Petit gâteau fourré à la crème", unit: "piece", price: 1.25, min: 6, step: 1 },

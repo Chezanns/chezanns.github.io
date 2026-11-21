@@ -472,9 +472,18 @@
       return;
     }
     state.mode = "noel";
-    var min = addDays(parisToday(), Number(C.LEAD_DAYS || 3));
+    var big = boudinGrams() > (N.BIG_ORDER_G || 8000);
+    var min = addDays(parisToday(), big ? Number(N.BIG_LEAD_DAYS || 5) : Number(C.LEAD_DAYS || 3));
     if (min < N.FIRST_PICKUP) min = N.FIRST_PICKUP;
-    openOrder(min, N.LAST_PICKUP, "Retrait possible du <strong>" + dayFr(min) + "</strong> au <strong>" + dayFr(N.LAST_PICKUP) + "</strong>.");
+    if (min > N.LAST_PICKUP) {
+      toast(big
+        ? "Plus de " + qtyLabel({ unit: "kg" }, N.BIG_ORDER_G || 8000) + " de boudin demande 5 jours de préparation : ce n'est plus possible avant le " + dayFr(N.LAST_PICKUP) + ". Réduisez la quantité."
+        : "Il n'y a plus de date de retrait disponible pour Noël.");
+      return;
+    }
+    openOrder(min, N.LAST_PICKUP,
+      (big ? "Plus de " + qtyLabel({ unit: "kg" }, N.BIG_ORDER_G || 8000) + " de boudin : 5 jours de préparation minimum. " : "") +
+      "Retrait possible du <strong>" + dayFr(min) + "</strong> au <strong>" + dayFr(N.LAST_PICKUP) + "</strong>.");
   });
 
   function renderNoelRecap() {
