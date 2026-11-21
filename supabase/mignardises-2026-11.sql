@@ -12,3 +12,14 @@ on conflict (id) do update set name = excluded.name, univers = excluded.univers,
 
 -- Anciennes lignes retirées de la carte (gardées pour l'historique, mais plus commandables)
 update public.items set active = false where id in ('tapas', 'mini-croissant', 'mini-quiche');
+
+-- Mignardises Caraïbes : accras et bokits séparés (accras au poulet retirés)
+insert into public.items (id, name, univers) values
+  ('accras-morue',      'Accras de morue',                'caraibes'),
+  ('accras-crevette',   'Accras de crevette',             'caraibes'),
+  ('mini-bokit-poulet', 'Mini bokit poulet',              'caraibes'),
+  ('mini-bokit-morue',  'Mini bokit morue',               'caraibes'),
+  ('mini-bokit-steak',  'Mini bokit steak haché cheddar', 'caraibes')
+on conflict (id) do update set name = excluded.name, univers = excluded.univers, active = true;
+
+update public.items set active = false where id in ('accras', 'mini-bokit');
