@@ -14,7 +14,7 @@ const supabase = createClient(
 
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "").replace(/\/?$/, "/");
 const DEPOSIT_PERCENT = Number(Deno.env.get("DEPOSIT_PERCENT") ?? "30");
-const LEAD_DAYS = Number(Deno.env.get("LEAD_DAYS") ?? "2");
+const LEAD_DAYS = Number(Deno.env.get("LEAD_DAYS") ?? "3");
 // Garder la même liste que SLOTS dans js/config.js
 const SLOTS = ["10h – 12h", "14h – 16h", "17h – 19h"];
 
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Adresse e-mail invalide.");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(pickup_date)) return fail("Date invalide.");
     if (pickup_date < addDays(parisToday(), LEAD_DAYS)) {
-      return fail(`Les commandes se font au moins ${LEAD_DAYS} jours à l'avance.`);
+      return fail(`Les commandes se font au moins ${LEAD_DAYS * 24} h avant la date de retrait.`);
     }
     if (!SLOTS.includes(pickup_slot)) return fail("Créneau invalide.");
 

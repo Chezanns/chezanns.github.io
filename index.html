@@ -100,7 +100,7 @@
         </div>
       </article>
     </div>
-    <p class="hint-line">Touchez le prix d'une box pour la choisir, puis composez-la juste en dessous.</p>
+    <p class="hint-line">Touchez le prix d'une box pour la choisir, puis composez-la juste en dessous.<br><span class="hint-line__small">Commandes au moins 72 h avant la date de retrait.</span></p>
   </section>
 
   <!-- COMPOSE TA BOX -->
@@ -263,10 +263,12 @@
       <label class="quote-only" hidden>Nombre de personnes *<input name="guests" type="number" min="1" max="500" inputmode="numeric"></label>
       <label><span id="date-label">Date de retrait *</span><input name="pickup_date" type="date" required></label>
       <label>Créneau *<select name="pickup_slot" id="slot-select" required></select></label>
+      <p class="fields__hint fields__full" id="date-hint">Commande au moins 72 h avant le retrait : premier jour possible le <strong id="date-min"></strong>.</p>
       <label class="fields__full">Allergies ou message pour Annie<textarea name="notes" rows="3" maxlength="500" placeholder="Ex. sans piment pour les enfants, c'est pour un anniversaire…"></textarea></label>
     </div>
 
     <p class="pickup-note"><strong>Retrait :</strong> <span id="pickup-place"></span>. <span id="pickup-info"></span></p>
+    <p class="cancel-note" id="cancel-note"><strong>Annulation :</strong> l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant la date de retrait prévue.</p>
     <label class="consent"><input type="checkbox" name="consent" required> <span id="consent-text">J'ai bien noté que le retrait se fait en Essonne (91) et que le solde est à régler sur place.</span></label>
 
     <p class="form-error" id="form-error" role="alert" hidden></p>

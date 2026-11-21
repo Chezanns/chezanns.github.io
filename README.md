@@ -36,7 +36,7 @@ supabase link --project-ref VOTRE_REF_PROJET
 supabase secrets set STRIPE_SECRET_KEY=sk_test_xxx
 supabase secrets set SITE_URL=https://VOTRE-COMPTE.github.io/chez-anns/
 supabase secrets set DEPOSIT_PERCENT=30
-supabase secrets set LEAD_DAYS=2
+supabase secrets set LEAD_DAYS=3
 
 supabase functions deploy create-order
 supabase functions deploy stripe-webhook --no-verify-jwt

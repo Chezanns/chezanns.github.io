@@ -245,3 +245,8 @@ main,.footer{overflow-x:clip}
 .paychoice__opt b{font-size:19px;white-space:nowrap}
 .paychoice__opt:has(input:checked){background:var(--gold);border-color:var(--gold)}
 .paychoice__opt:has(input:checked) small{color:#4A3427}
+
+/* Délai de commande et annulation */
+.hint-line__small{font-weight:400;font-size:14px}
+.fields__hint{margin:-4px 0 0;font-size:14px;color:#6B4E3D}
+.cancel-note{margin:0;font-size:14px;color:#4A3427;background:#FFF0E8;border-left:3px solid #D62828;padding:8px 12px;border-radius:8px}

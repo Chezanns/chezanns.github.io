@@ -179,7 +179,9 @@
     $("#consent-text").textContent = quote
       ? "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") + " et qu'Annie me recontacte avec un devis."
       : "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
-        (payFull() ? "." : " et que le solde est à régler sur place.");
+        (payFull() ? "" : ", que le solde est à régler sur place") +
+        " et que l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant le retrait.";
+    $("#cancel-note").hidden = quote;
     if (!quote) {
       var total = b.price * state.qty;
       var dep = Math.round(total * pct) / 100;
@@ -204,9 +206,10 @@
       toast("Choisissez le niveau d'épices de votre box.");
       return;
     }
-    var min = addDays(parisToday(), Number(C.LEAD_DAYS || 2));
+    var min = addDays(parisToday(), Number(C.LEAD_DAYS || 3));
     var dateInput = form.elements.pickup_date;
     dateInput.min = min;
+    $("#date-min").textContent = new Date(min + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
     if (!dateInput.value || dateInput.value < min) dateInput.value = "";
     $("#form-error").hidden = true;
     renderRecap();
