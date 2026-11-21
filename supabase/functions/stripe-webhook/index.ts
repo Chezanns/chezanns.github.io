@@ -70,15 +70,20 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
     port: 465,
     secure: true,
     auth: { user, pass: pass.replace(/\s+/g, "") },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
   const name = Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's";
-  await transporter.sendMail({
+  console.log(`Envoi e-mail à ${to} : ${subject}`);
+  const info = await transporter.sendMail({
     from: { name, address: user },
     replyTo: { name, address: Deno.env.get("REPLY_TO") ?? user }, // les réponses des clients arrivent ici
     to: { name: toName, address: to },
     subject,
     html,
   });
+  console.log("E-mail envoyé", info.messageId);
 }
 
 // deno-lint-ignore no-explicit-any
@@ -126,18 +131,18 @@ Deno.serve(async (req) => {
   const orderId = session.metadata?.order_id;
 
   if (orderId && event.type === "checkout.session.completed" && session.payment_status === "paid") {
-    const { data: order } = await supabase.from("orders")
+    await supabase.from("orders")
       .update({ status: "confirmee", deposit_paid: true, paid_at: new Date().toISOString() })
-      .eq("id", orderId).eq("status", "attente_paiement")
-      .select("*").maybeSingle();
+      .eq("id", orderId).eq("status", "attente_paiement");
+    const { data: order } = await supabase.from("orders").select("*").eq("id", orderId).maybeSingle();
 
-    // Un seul e-mail par commande, même si Stripe renvoie l'événement
-    if (order && !order.confirm_email_sent_at) {
+    // Un seul e-mail par commande ; si l'envoi a échoué, un renvoi de l'événement par Stripe le retente
+    if (order && order.deposit_paid && !order.confirm_email_sent_at) {
       try {
         await sendConfirmation(order);
         await supabase.from("orders").update({ confirm_email_sent_at: new Date().toISOString() }).eq("id", orderId);
       } catch (e) {
-        console.error("E-mail de confirmation non envoyé", e);
+        console.error("E-mail de confirmation non envoyé :", e instanceof Error ? e.message : e);
       }
     }
   }

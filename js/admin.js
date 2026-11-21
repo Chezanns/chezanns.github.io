@@ -33,7 +33,7 @@
   var toastTimer;
   function toast(msg) {
     var t = $("#toast"); t.textContent = msg; t.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2600);
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, msg.length > 60 ? 9000 : 2600);
   }
   var SPICE_LABELS = ["Pas épicé", "Peu épicé", "Épicé", "Ça décoiffe"];
   function chilis(level) {
@@ -112,7 +112,10 @@
         }
         if (res.data.emailed) apply("Box prête — e-mail envoyé au client", { ready_email_sent_at: new Date().toISOString() });
         else if (res.data.already) apply("Box prête (le client avait déjà reçu l'e-mail)");
-        else apply("Box prête, mais l'e-mail n'a pas pu partir : prévenez le client par téléphone");
+        else {
+          console.error("E-mail non envoyé :", res.data.error);
+          apply("Box prête, mais l'e-mail n'est pas parti (" + (res.data.error || "erreur inconnue") + ")");
+        }
       });
       return;
     }

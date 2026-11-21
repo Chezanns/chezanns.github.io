@@ -55,15 +55,20 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
     port: 465,
     secure: true,
     auth: { user, pass: pass.replace(/\s+/g, "") },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
   const name = Deno.env.get("MAIL_FROM_NAME") ?? "Chez Ann's";
-  await transporter.sendMail({
+  console.log(`Envoi e-mail à ${to} : ${subject}`);
+  const info = await transporter.sendMail({
     from: { name, address: user },
     replyTo: { name, address: Deno.env.get("REPLY_TO") ?? user }, // les réponses des clients arrivent ici
     to: { name: toName, address: to },
     subject,
     html,
   });
+  console.log("E-mail envoyé", info.messageId);
 }
 
 // deno-lint-ignore no-explicit-any
@@ -122,8 +127,9 @@ Deno.serve(async (req) => {
       await supabase.from("orders").update({ ready_email_sent_at: new Date().toISOString() }).eq("id", order.id);
       return json({ ok: true, emailed: true });
     } catch (e) {
-      console.error("E-mail « prête » non envoyé", e);
-      return json({ ok: true, emailed: false, error: "E-mail non envoyé" });
+      const reason = e instanceof Error ? e.message : String(e);
+      console.error("E-mail « prête » non envoyé :", reason);
+      return json({ ok: true, emailed: false, error: reason });
     }
   } catch (e) {
     console.error(e);
