@@ -60,6 +60,19 @@ ${o.notes ? row("Votre message", `<span style="font-weight:normal;font-style:ita
 </table>`;
 }
 
+// Version texte de l'e-mail (les filtres anti-spam se méfient des e-mails 100 % HTML)
+function htmlToText(html: string) {
+  return html
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 : $1")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|tr|h1|table)>/gi, "\n")
+    .replace(/<\/td>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, " ").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
+}
+
 async function sendMail(to: string, toName: string, subject: string, html: string) {
   const user = Deno.env.get("SMTP_USER");
   const pass = Deno.env.get("SMTP_PASS");
@@ -82,6 +95,7 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
     to: { name: toName, address: to },
     subject,
     html,
+    text: htmlToText(html),
   });
   console.log("E-mail envoyé", info.messageId);
 }
@@ -97,7 +111,7 @@ ${recap(o)}
 <p style="background:#F7B52A;border-radius:12px;padding:12px 14px;margin:0 0 14px"><b>Et ensuite ?</b> Vous recevrez un second e-mail dès que votre box sera prête, avec l'adresse exacte de retrait.</p>
 <p>Une question ? Répondez simplement à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
 <p>À très vite,<br><b>Annie — Chez Ann's</b></p>`;
-  await sendMail(o.email, o.customer_name, `Commande confirmée ✔ ${o.box_name} — Réf. ${o.ref}`, layout("Votre commande est confirmée", body));
+  await sendMail(o.email, o.customer_name, `Votre commande Chez Ann's est confirmée (réf. ${o.ref})`, layout("Votre commande est confirmée", body));
 
   // Copie facultative pour Annie
   const notify = Deno.env.get("NOTIFY_EMAIL");

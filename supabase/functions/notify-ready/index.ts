@@ -45,6 +45,19 @@ function layout(title: string, body: string) {
 </td></tr></table></body></html>`;
 }
 
+// Version texte de l'e-mail (les filtres anti-spam se méfient des e-mails 100 % HTML)
+function htmlToText(html: string) {
+  return html
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 : $1")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|tr|h1|table)>/gi, "\n")
+    .replace(/<\/td>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, " ").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
+}
+
 async function sendMail(to: string, toName: string, subject: string, html: string) {
   const user = Deno.env.get("SMTP_USER");
   const pass = Deno.env.get("SMTP_PASS");
@@ -67,6 +80,7 @@ async function sendMail(to: string, toName: string, subject: string, html: strin
     to: { name: toName, address: to },
     subject,
     html,
+    text: htmlToText(html),
   });
   console.log("E-mail envoyé", info.messageId);
 }
@@ -96,7 +110,7 @@ ${note ? `<div style="font-size:14px;color:#4A3427;white-space:pre-line">${esc(n
 <p style="font-size:14px;color:#4A3427">Référence : <b>${esc(o.ref)}</b> · Épices : ${esc(SPICE_LABELS[o.spice ?? 0])}</p>
 <p>Un empêchement ? Répondez à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
 <p>À tout à l'heure,<br><b>Annie — Chez Ann's</b></p>`;
-  await sendMail(o.email, o.customer_name, `Votre box est prête 🎉 — Réf. ${o.ref}`, layout("Votre commande est prête !", body));
+  await sendMail(o.email, o.customer_name, `Votre commande Chez Ann's est prête (réf. ${o.ref})`, layout("Votre commande est prête !", body));
 }
 
 // ───────────────────────── Fonction ─────────────────────────

@@ -312,7 +312,7 @@
   if (params.get("commande") === "ok") {
     showReturn("Merci !", "Votre paiement est bien reçu et votre commande" +
       (params.get("ref") ? " (réf. " + params.get("ref") + ")" : "") +
-      " est confirmée. Vous recevez le reçu par e-mail. " + (C.PICKUP_INFO || ""));
+      " est confirmée. Un e-mail de confirmation vient de vous être envoyé : pensez à regarder dans vos spams si vous ne le voyez pas. " + (C.PICKUP_INFO || ""));
   } else if (params.get("commande") === "annulee") {
     showReturn("Paiement annulé", "Aucun montant n'a été débité. Vous pouvez recommencer votre commande quand vous voulez.");
   }
