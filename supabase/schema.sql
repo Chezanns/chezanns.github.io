@@ -127,7 +127,8 @@ insert into public.items (id, name, univers) values
   ('dize-mile',              'Dizé milé salé au poulet',                           'caraibes'),
   ('kalawang',               'Kalawang (salade de mangue)',                        'caraibes'),
   ('navette-poulet-fume',    'Navette au poulet fumé',                             'caraibes'),
-  ('samoussa-thon-legumes',  'Samoussa thon / légumes',                            'caraibes'),
+  ('samoussa-thon',          'Samoussa thon',                                      'caraibes'),
+  ('samoussa-legumes',       'Samoussa légumes',                                   'caraibes'),
   ('verrine-guacamole',      'Verrine guacamole',                                  'caraibes')
 on conflict (id) do update set name = excluded.name, univers = excluded.univers;
 

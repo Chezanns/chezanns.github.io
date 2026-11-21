@@ -23,3 +23,11 @@ insert into public.items (id, name, univers) values
 on conflict (id) do update set name = excluded.name, univers = excluded.univers, active = true;
 
 update public.items set active = false where id in ('accras', 'mini-bokit');
+
+-- Samoussas Caraïbes séparés
+insert into public.items (id, name, univers) values
+  ('samoussa-thon',    'Samoussa thon',    'caraibes'),
+  ('samoussa-legumes', 'Samoussa légumes', 'caraibes')
+on conflict (id) do update set name = excluded.name, univers = excluded.univers, active = true;
+
+update public.items set active = false where id = 'samoussa-thon-legumes';
