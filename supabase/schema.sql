@@ -105,13 +105,15 @@ on conflict (id) do update set
 
 insert into public.items (id, name, univers) values
   ('mini-burger',            'Mini burger',                                        'classique'),
-  ('mini-croissant',         'Mini croissant saucisse de poulet ou jambon fromage','classique'),
+  ('mini-croissant-poulet',  'Mini croissant saucisse de poulet',                  'classique'),
+  ('mini-croissant-jambon',  'Mini croissant jambon fromage',                      'classique'),
   ('navette-poulet-salade',  'Navette poulet fumé et salade',                      'classique'),
   ('toast-olives',           'Toast aux olives épicées',                           'classique'),
-  ('tapas',                  'Variété de tapas',                                   'classique'),
+  ('wrap-jambon-fromage',    'Wrap jambon fromage',                                'classique'),
   ('mini-hot-dog',           'Mini hot-dog',                                       'classique'),
   ('mini-croque',            'Mini croque-monsieur',                               'classique'),
-  ('mini-quiche',            'Mini quiche saumon ou jambon fromage',               'classique'),
+  ('mini-quiche-saumon',     'Mini quiche saumon',                                 'classique'),
+  ('mini-quiche-jambon',     'Mini quiche jambon fromage',                         'classique'),
   ('tartelette-thon',        'Mini tartelette au thon',                            'classique'),
   ('toast-avocat-crevette',  'Toast avocat crevette',                              'classique'),
   ('samoussa-poulet',        'Samoussa poulet',                                    'classique'),
