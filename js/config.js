@@ -54,6 +54,7 @@ window.CHEZ_ANNS_CONFIG = {
       { id: "dize-mile-sucre", group: "douceurs", name: "Dizé milé", desc: "Petit gâteau fourré à la crème", img: "images/noel-dize-mile.jpg", imgLarge: "images/noel-dize-mile-grand.jpg", unit: "piece", price: 1.25, min: 6, step: 1 },
       { id: "comtesses",       group: "douceurs", name: "Comtesses", desc: "Petits gâteaux sablés", img: "images/noel-comtesses.jpg", imgLarge: "images/noel-comtesses-grand.jpg", unit: "piece", price: 0.50, min: 6, step: 1 },
       { id: "pain-beurre",     group: "douceurs", name: "Pain au beurre en couronne", desc: "Pour 8 à 10 personnes", unit: "piece", price: 8, min: 1, step: 1 },
+      { id: "petit-pain-beurre", group: "douceurs", name: "Petit pain au beurre", desc: "À la pièce", unit: "piece", price: 2, min: 1, step: 1 },
       { id: "chocolat-creole", group: "douceurs", name: "Chocolat créole", desc: "Le chocolat chaud des fêtes antillaises", unit: "litre", price: 10, min: 1, step: 1 },
       { id: "boudin-creole",   group: "boudins",  name: "Boudin créole",      unit: "kg", price: 18, min: 500, step: 500 },
       { id: "boudin-morue",    group: "boudins",  name: "Boudin de morue",    unit: "kg", price: 30, min: 500, step: 500 },
