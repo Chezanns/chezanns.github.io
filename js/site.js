@@ -512,6 +512,7 @@
         el.dataset.id = p.id;
         var price = p.unit === "kg" ? euros(p.price) + " le kilo" : euros(p.price) + " la pièce";
         el.innerHTML =
+          (p.img ? '<button type="button" class="noel-item__img" data-zoom><img alt="" loading="lazy"></button>' : "") +
           '<div class="noel-item__txt">' +
             '<span class="noel-item__name"></span>' +
             (p.desc ? '<span class="noel-item__desc"></span>' : "") +
@@ -524,6 +525,13 @@
             '<button type="button" data-step="1">+</button>' +
           "</div>";
         $(".noel-item__name", el).textContent = p.name;
+        if (p.img) {
+          var im = $(".noel-item__img img", el);
+          im.src = p.img;
+          im.alt = p.name;
+          $(".noel-item__img", el).setAttribute("aria-label", "Voir la photo : " + p.name);
+          $(".noel-item__img", el).dataset.large = p.imgLarge || p.img;
+        }
         if (p.desc) $(".noel-item__desc", el).textContent = p.desc;
         $(".noel-item__price", el).textContent = price + " · min. " + qtyLabel(p, p.min);
         $('[data-step="-1"]', el).setAttribute("aria-label", "Retirer " + p.name);
@@ -577,6 +585,13 @@
   }
 
   $("#noel").addEventListener("click", function (e) {
+    var z = e.target.closest("[data-zoom]");
+    if (z) {
+      $("#photo-img").src = z.dataset.large;
+      $("#photo-img").alt = $("img", z).alt;
+      $("#photo-dialog").showModal();
+      return;
+    }
     var b = e.target.closest("[data-step]");
     if (!b) return;
     stepNoel(b.closest(".noel-item").dataset.id, Number(b.dataset.step));

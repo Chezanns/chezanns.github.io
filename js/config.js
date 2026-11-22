@@ -51,8 +51,8 @@ window.CHEZ_ANNS_CONFIG = {
     BIG_LEAD_DAYS: 5,             // …5 jours de préparation minimum
     // unit "piece" : prix à la pièce, quantités en pièces ; unit "kg" : prix au kilo, quantités en grammes
     PRODUCTS: [
-      { id: "dize-mile-sucre", group: "douceurs", name: "Dizé milé", desc: "Petit gâteau fourré à la crème", unit: "piece", price: 1.25, min: 6, step: 1 },
-      { id: "comtesses",       group: "douceurs", name: "Comtesses", desc: "Petits gâteaux sablés",          unit: "piece", price: 0.50, min: 6, step: 1 },
+      { id: "dize-mile-sucre", group: "douceurs", name: "Dizé milé", desc: "Petit gâteau fourré à la crème", img: "images/noel-dize-mile.jpg", imgLarge: "images/noel-dize-mile-grand.jpg", unit: "piece", price: 1.25, min: 6, step: 1 },
+      { id: "comtesses",       group: "douceurs", name: "Comtesses", desc: "Petits gâteaux sablés", img: "images/noel-comtesses.jpg", imgLarge: "images/noel-comtesses-grand.jpg", unit: "piece", price: 0.50, min: 6, step: 1 },
       { id: "boudin-creole",   group: "boudins",  name: "Boudin créole",      unit: "kg", price: 18, min: 500, step: 500 },
       { id: "boudin-morue",    group: "boudins",  name: "Boudin de morue",    unit: "kg", price: 30, min: 500, step: 500 },
       { id: "boudin-poulet",   group: "boudins",  name: "Boudin de poulet",   unit: "kg", price: 25, min: 500, step: 500 },
