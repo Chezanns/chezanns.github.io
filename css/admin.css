@@ -135,3 +135,12 @@ body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.45 var(--sans
 .badge--noel{background:#9E1B26;color:#FFF6EA}
 #prep-noel{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 #prep-noel-wrap h3{margin-top:10px}
+
+/* Filtre Box / Noël */
+.kinds{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:-8px}
+.kinds__label{font-weight:700;color:var(--muted);font-size:15px;margin-right:2px}
+.kinds button{min-height:44px;padding:8px 16px;border:1.5px solid #D8BFA2;border-radius:999px;background:#fff;color:var(--ink);font:700 15px var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.kinds button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#FBF3E6}
+.kinds button.kinds__noel[aria-pressed="true"]{background:#9E1B26;border-color:#9E1B26}
+.kinds__n{font-size:12px;font-weight:800;background:#F2E3CE;color:var(--ink);border-radius:999px;padding:1px 8px}
+.kinds__n:empty{display:none}

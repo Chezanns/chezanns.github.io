@@ -59,6 +59,13 @@
       </div>
     </div>
 
+    <div class="kinds" role="group" aria-label="Type de commande">
+      <span class="kinds__label">Afficher :</span>
+      <button type="button" data-kind="all" aria-pressed="true">Tout <span class="kinds__n" id="kind-n-all"></span></button>
+      <button type="button" data-kind="box" aria-pressed="false">Box <span class="kinds__n" id="kind-n-box"></span></button>
+      <button type="button" data-kind="noel" aria-pressed="false" class="kinds__noel">Noël <span class="kinds__n" id="kind-n-noel"></span></button>
+    </div>
+
     <div class="kpis" id="kpis"></div>
 
     <div class="layout">
@@ -78,8 +85,10 @@
           <h3>Noël</h3>
           <div id="prep-noel"></div>
         </div>
-        <h3>Par mignardise <span>(estimation)</span></h3>
-        <div id="prep-items"></div>
+        <div id="prep-items-wrap">
+          <h3>Par mignardise <span>(estimation)</span></h3>
+          <div id="prep-items"></div>
+        </div>
         <p class="prep__tip">Touchez « Marquer prête » quand une box est terminée : elle sort de ce total.</p>
       </aside>
     </div>

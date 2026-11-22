@@ -9,6 +9,9 @@
   var sb = null;
   var orders = [];
   var tab = "week";
+  var kind = "all"; // all | box | noel
+  try { kind = localStorage.getItem("chezanns.kind") || "all"; } catch (e) { /* stockage indisponible */ }
+  function isKind(o) { return kind === "all" || (kind === "noel" ? o.kind === "noel" : o.kind !== "noel"); }
 
   // ── Utilitaires ─────────────────────────────────────────
   function esc(s) {
@@ -150,9 +153,17 @@
     $("#quote-badge").hidden = !quotes.length;
     $("#quote-badge").textContent = quotes.length;
 
-    var sales = orders.filter(function (o) { return ["confirmee", "prete", "recuperee"].indexOf(o.status) !== -1 && inPeriod(o); });
+    var allSales = orders.filter(function (o) { return ["confirmee", "prete", "recuperee"].indexOf(o.status) !== -1 && inPeriod(o); });
+    var open = allSales.filter(function (o) { return showDone || o.status !== "recuperee"; });
+    var nNoel = open.filter(function (o) { return o.kind === "noel"; }).length;
+    $("#kind-n-all").textContent = open.length || "";
+    $("#kind-n-box").textContent = (open.length - nNoel) || "";
+    $("#kind-n-noel").textContent = nNoel || "";
+    document.querySelectorAll(".kinds button").forEach(function (x) { x.setAttribute("aria-pressed", x.dataset.kind === kind ? "true" : "false"); });
+
+    var sales = allSales.filter(isKind);
     var visible = isQuotes
-      ? orders.filter(function (o) { return o.status === "devis" || (showDone && o.status === "devis_traite"); })
+      ? orders.filter(function (o) { return isKind(o) && (o.status === "devis" || (showDone && o.status === "devis_traite")); })
       : sales.filter(function (o) { return showDone || o.status !== "recuperee"; });
 
     visible.sort(function (a, b) {
@@ -161,7 +172,7 @@
     renderKpis(sales, quotes);
     renderList(visible, isQuotes);
     renderPrep(sales.filter(function (o) { return o.status === "confirmee"; }));
-    $("#list-title").textContent = isQuotes ? "Demandes de devis" : "Retraits prévus";
+    $("#list-title").textContent = (isQuotes ? "Demandes de devis" : "Retraits prévus") + (kind === "box" ? " · Box" : kind === "noel" ? " · Noël" : "");
     $(".toggle").lastChild.textContent = isQuotes ? " Afficher les devis traités" : " Afficher les commandes récupérées";
     $("#prep-panel").hidden = isQuotes;
   }
@@ -178,9 +189,11 @@
     var label = { today: "aujourd'hui", week: "sur 7 jours", all: "à venir", quotes: "à venir" }[tab];
     $("#kpis").innerHTML =
       kpi("Commandes", sales.length, label, "main") +
-      kpi("Box à préparer", nBoxes, nReady + " déjà prête" + (nReady > 1 ? "s" : "") + (nNoel ? " · + " + nNoel + " commande" + (nNoel > 1 ? "s" : "") + " de Noël" : "")) +
+      (kind === "noel"
+        ? kpi("À préparer", nNoel, "commande" + (nNoel > 1 ? "s" : "") + " de Noël")
+        : kpi("Box à préparer", nBoxes, nReady + " déjà prête" + (nReady > 1 ? "s" : "") + (nNoel ? " · + " + nNoel + " commande" + (nNoel > 1 ? "s" : "") + " de Noël" : ""))) +
       kpi("Déjà encaissé", eur(paid), label, "green") +
-      kpi("Reste à encaisser", eur(rest), quotes.length + " devis en attente");
+      kpi("Reste à encaisser", eur(rest), kind === "noel" ? label : quotes.length + " devis en attente");
   }
   function kpi(label, value, sub, mod) {
     return '<div class="kpi' + (mod === "main" ? " kpi--main" : "") + '"><span class="kpi__label">' + esc(label) +
@@ -277,6 +290,7 @@
       : (Object.keys(byNoel).length ? '<p class="prep__sub">Aucune box à préparer.</p>' : '<p class="prep__sub">Tout est prêt, bravo !</p>');
     var noelKeys = Object.keys(byNoel).sort();
     $("#prep-noel-wrap").hidden = !noelKeys.length;
+    $("#prep-boxes").hidden = kind === "noel" && noelKeys.length > 0;
     $("#prep-noel").innerHTML = noelKeys.map(function (k) {
       var p = k.split("|"), unit = p[1], lvl = Number(p[2]), q = byNoel[k];
       var qty = unit === "kg" ? (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : q + " pc";
@@ -285,12 +299,20 @@
         "</span><b>" + qty + "</b></div>";
     }).join("");
     var items = Object.keys(byItem).sort(function (a, b) { return byItem[b] - byItem[a]; });
+    $("#prep-items-wrap").hidden = !items.length;
     $("#prep-items").innerHTML = items.length
       ? items.map(function (k) { return '<div class="prep__row prep__row--small"><span>' + esc(k) + "</span><b>≈ " + Math.round(byItem[k]) + "</b></div>"; }).join("")
       : "";
   }
 
   // ── Événements ──────────────────────────────────────────
+  document.querySelectorAll(".kinds button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      kind = b.dataset.kind;
+      try { localStorage.setItem("chezanns.kind", kind); } catch (e) { /* stockage indisponible */ }
+      render();
+    });
+  });
   document.querySelectorAll(".tabs button").forEach(function (b) {
     b.addEventListener("click", function () {
       tab = b.dataset.tab;
