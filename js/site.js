@@ -273,7 +273,8 @@
     var payload = state.mode === "noel" ? Object.assign({
       kind: "noel",
       lines: noelLines().map(function (l) { return { id: l.p.id, qty: l.qty }; }),
-      spice: noelHasBoudin() ? getNoelSpice() : 0
+      spice: noelHasBoudin() ? getNoelSpice() : 0,
+      boudin_fresh: noelHasBoudin() && getNoelFresh()
     }, customer) : {
       box_id: state.box.id,
       qty: isQuote() ? 1 : state.qty,
@@ -354,6 +355,10 @@
       .reduce(function (s, p) { return s + (state.noel[p.id] || 0); }, 0);
   }
   function noelHasBoudin() { return boudinGrams() > 0; }
+  function getNoelFresh() {
+    var r = $('input[name="noel_state"]:checked');
+    return !!r && r.value === "frais";
+  }
   function getNoelSpice() {
     var r = $('input[name="noel_spice"]:checked');
     return r ? Number(r.value) : null;
@@ -444,6 +449,7 @@
     $("#noelbar-count").textContent = lines.length + " produit" + (lines.length > 1 ? "s" : "") +
       (g ? " · " + qtyLabel({ unit: "kg" }, g) + " de boudin" : "");
     $("#noel-spice").hidden = !g;
+    $("#noel-state").hidden = !g;
     syncBars();
   }
   function syncBars() {
@@ -501,7 +507,7 @@
     if (hasB) {
       var sp = getNoelSpice() || 0, ch = "";
       for (var i = 0; i < Math.max(1, sp); i++) ch += '<svg class="chili"' + (sp ? "" : ' style="filter:grayscale(1);opacity:.4"') + ' aria-hidden="true"><use href="#chili"/></svg>';
-      $("#recap-spice").innerHTML = ch + "<span>Boudins : " + SPICE_LABELS[sp] + "</span>";
+      $("#recap-spice").innerHTML = ch + "<span>Boudins : " + SPICE_LABELS[sp] + " · " + (getNoelFresh() ? "frais" : "congelés") + "</span>";
     }
     $("#recap-money").hidden = false;
     $("#recap-quote").hidden = true;
@@ -524,6 +530,7 @@
   function resetNoel() {
     state.noel = {};
     $$('input[name="noel_spice"]').forEach(function (r) { r.checked = false; });
+    var cg = $('input[name="noel_state"][value="congele"]'); if (cg) cg.checked = true;
     updateNoel();
   }
 

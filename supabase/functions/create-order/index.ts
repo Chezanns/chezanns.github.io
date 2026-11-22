@@ -117,6 +117,8 @@ Deno.serve(async (req) => {
       if (boudin_g > NOEL_BIG_ORDER_G && pickup_date < addDays(parisToday(), NOEL_BIG_LEAD_DAYS)) {
         return fail(`Au-delà de ${qtyLabel("kg", NOEL_BIG_ORDER_G)} de boudin, il faut compter ${NOEL_BIG_LEAD_DAYS} jours de préparation : choisissez une date à partir du ${dateFr(addDays(parisToday(), NOEL_BIG_LEAD_DAYS))}.`);
       }
+      const fresh = boudin_g > 0 && b.boudin_fresh === true; // boudins congelés par défaut, frais sur demande
+      for (const l of lines) if (l.boudin) l.fresh = fresh;
       let spice = 0;
       if (boudin_g > 0) {
         spice = Number(b.spice);
@@ -126,7 +128,7 @@ Deno.serve(async (req) => {
       const ref = makeRef();
       const { data: order, error } = await supabase.from("orders").insert({
         ...customer, ref, kind: "noel", box_id: null, box_name: "Commande de Noël", qty: 1,
-        items: lines.map((l) => `${l.name} — ${qtyLabel(l.unit, l.qty)}`), lines, spice,
+        items: lines.map((l) => `${l.name} — ${qtyLabel(l.unit, l.qty)}${l.boudin ? (l.fresh ? " (frais)" : " (congelé)") : ""}`), lines, spice,
         total_cents, deposit_cents, pay_full, status: "attente_paiement",
       }).select("id").single();
       if (error) throw error;
@@ -144,7 +146,7 @@ Deno.serve(async (req) => {
             product_data: {
               name: pay_full ? "Commande de Noël — paiement complet" : `Acompte ${NOEL_DEPOSIT_PERCENT} % — Commande de Noël`,
               description: lines.map((l) => `${l.name} ${qtyLabel(l.unit, l.qty)}`).join(", ") +
-                (boudin_g ? ` · Boudins : ${SPICE_LABELS[spice]}` : "") +
+                (boudin_g ? ` · Boudins : ${SPICE_LABELS[spice]}, ${fresh ? "frais" : "congelés"}` : "") +
                 ` · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref}` +
                 (pay_full ? " · Rien à régler au retrait" : ` · Solde de ${rest} € à régler au retrait`),
             },

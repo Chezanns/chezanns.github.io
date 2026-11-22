@@ -71,13 +71,13 @@
       o(11, "14h – 16h", "prestige", 2, "Lydie Marceau", "06 55 18 72 40", ["Accras de morue", "Mini burger", "Samoussa poulet"], "confirmee", { notes: "Baptême" }),
       Object.assign(o(2, "17h – 19h", "decouverte", 1, "Josiane Bellay", "06 44 21 87 10", [], "confirmee"), {
         kind: "noel", box_id: null, box_name: "Commande de Noël", spice: 2, total_cents: 6150, deposit_cents: 3075,
-        items: ["Dizé milé — 12 pièces", "Boudin créole — 1,5 kg", "Boudin de morue — 500 g"],
-        lines: [{ name: "Dizé milé", unit: "piece", qty: 12, boudin: false }, { name: "Boudin créole", unit: "kg", qty: 1500, boudin: true }, { name: "Boudin de morue", unit: "kg", qty: 500, boudin: true }]
+        items: ["Dizé milé — 12 pièces", "Boudin créole — 1,5 kg (congelé)", "Boudin de morue — 500 g (congelé)"],
+        lines: [{ name: "Dizé milé", unit: "piece", qty: 12, boudin: false }, { name: "Boudin créole", unit: "kg", qty: 1500, boudin: true, fresh: false }, { name: "Boudin de morue", unit: "kg", qty: 500, boudin: true, fresh: false }]
       }),
       Object.assign(o(5, "10h – 12h", "decouverte", 1, "Patrick Lamy", "07 12 98 33 21", [], "confirmee"), {
         kind: "noel", box_id: null, box_name: "Commande de Noël", spice: 3, total_cents: 7250, deposit_cents: 7250, pay_full: true,
-        items: ["Comtesses — 24 pièces", "Boudin de crevette — 1,5 kg"],
-        lines: [{ name: "Comtesses", unit: "piece", qty: 24, boudin: false }, { name: "Boudin de crevette", unit: "kg", qty: 1500, boudin: true }]
+        items: ["Comtesses — 24 pièces", "Boudin de crevette — 1,5 kg (frais)"],
+        lines: [{ name: "Comtesses", unit: "piece", qty: 24, boudin: false }, { name: "Boudin de crevette", unit: "kg", qty: 1500, boudin: true, fresh: true }]
       }),
       o(9, "14h – 16h", "caraibes", 1, "Fabrice Delage", "07 82 63 14 50", ["Accras de morue", "Mini bokit poulet", "Dizé milé salé au poulet", "Verrine guacamole", "Kalawang (salade de mangue)"], "devis", { guests: 40, notes: "Pour un mariage, on peut en parler ?" })
     ];
@@ -256,7 +256,7 @@
     toPrep.forEach(function (o) {
       if (o.kind === "noel") {
         (o.lines || []).forEach(function (l) {
-          var k = l.name + "|" + l.unit + "|" + (l.boudin ? Number(o.spice) || 0 : -1);
+          var k = l.name + "|" + l.unit + "|" + (l.boudin ? Number(o.spice) || 0 : -1) + "|" + (l.boudin ? (l.fresh ? "frais" : "congelé") : "");
           byNoel[k] = (byNoel[k] || 0) + Number(l.qty);
         });
         return;
@@ -281,7 +281,7 @@
       var p = k.split("|"), unit = p[1], lvl = Number(p[2]), q = byNoel[k];
       var qty = unit === "kg" ? (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : q + " pc";
       return '<div class="prep__row"><span class="prep__box">' + esc(p[0]) +
-        (lvl >= 0 ? '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + "</small>" : "") +
+        (lvl >= 0 ? '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + (p[3] ? " · " + esc(p[3]) : "") + "</small>" : "") +
         "</span><b>" + qty + "</b></div>";
     }).join("");
     var items = Object.keys(byItem).sort(function (a, b) { return byItem[b] - byItem[a]; });
