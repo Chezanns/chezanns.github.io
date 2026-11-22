@@ -340,6 +340,7 @@
       <label class="fields__full">E-mail *<input name="email" type="email" autocomplete="email" required maxlength="120" placeholder="vous@exemple.fr"></label>
       <label class="quote-only" hidden>Nombre de personnes *<input name="guests" type="number" min="1" max="500" inputmode="numeric"></label>
       <label><span id="date-label">Date de retrait *</span><input name="pickup_date" type="date" required></label>
+      <div class="date-full fields__full" id="date-full" role="alert" hidden></div>
       <label>Créneau *<select name="pickup_slot" id="slot-select" required></select></label>
       <p class="fields__hint fields__full" id="date-hint">Commande au moins 72 h avant le retrait : premier jour possible le <strong id="date-min"></strong>.</p>
       <label class="fields__full">Allergies ou message pour Annie<textarea name="notes" rows="3" maxlength="500" placeholder="Ex. sans piment pour les enfants, c'est pour un anniversaire…"></textarea></label>

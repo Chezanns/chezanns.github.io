@@ -89,6 +89,11 @@ La fonction `notify-ready` garde « Enforce JWT verification » activé.
 - Prix à la pièce : colonne `price_cents` de la table `items` (lancer `supabase/caraibes-prix.sql`) **et** `CARAIBES.PRICES` dans `js/config.js`.
 - 6 personnes minimum, 6 pièces par personne, ajustements par 6 pièces, 150 personnes maximum, 5 jours de préparation au-delà de 240 pièces.
 
+## Limite de retraits par jour
+
+3 retraits maximum par jour (toutes commandes confondues), réglés dans la fonction SQL `full_days` (`supabase/limite-retraits.sql`).
+Une commande en cours de paiement réserve sa place pendant 1 h. Pour changer la limite : modifier le `3` et relancer le fichier.
+
 ---
 
 ## Modifier les box ou les prix

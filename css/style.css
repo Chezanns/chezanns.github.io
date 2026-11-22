@@ -346,3 +346,11 @@ main,.footer{overflow-x:clip}
 @media (max-width:760px){.noel-item__img{width:64px;height:64px;border-radius:14px}}
 .noel-item .stepper{margin-left:auto}
 .modal--photo img{max-height:calc(100dvh - 40px);object-fit:contain;margin:0 auto}
+
+/* Jours complets */
+.date-full{background:#FFF0E8;border-left:3px solid #D62828;border-radius:8px;padding:10px 12px;font-size:14px}
+.date-full p{margin:0 0 8px;font-weight:700;color:#8E1620}
+.date-full__chips{display:flex;flex-wrap:wrap;gap:6px}
+.date-full__chips button{min-height:40px;padding:6px 14px;border:1.5px solid #D8BFA2;border-radius:999px;background:#fff;font:700 14px var(--sans);color:var(--ink);cursor:pointer}
+.date-full__chips button::first-letter{text-transform:uppercase}
+.date-full__chips button:hover{border-color:var(--red)}

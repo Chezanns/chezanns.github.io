@@ -336,6 +336,51 @@
   function dayFr(iso, opts) {
     return new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", opts || { weekday: "long", day: "numeric", month: "long" });
   }
+  // ── Jours complets (limite de retraits par jour) ──
+  var fullDays = {};
+  function loadFullDays(from, to) {
+    if (!C.SUPABASE_URL || C.SUPABASE_URL.indexOf("VOTRE") !== -1) return Promise.resolve();
+    return fetch(C.SUPABASE_URL.replace(/\/$/, "") + "/rest/v1/rpc/full_days", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": C.SUPABASE_ANON_KEY, "Authorization": "Bearer " + C.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ d_from: from, d_to: to })
+    }).then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (days) { fullDays = {}; (days || []).forEach(function (d) { fullDays[d] = true; }); checkDate(); })
+      .catch(function () { /* le serveur vérifie de toute façon */ });
+  }
+  function nextFreeDays(from, max, n) {
+    var out = [], d = from;
+    for (var i = 0; i < 120 && out.length < n; i++) {
+      if (max && d > max) break;
+      if (!fullDays[d]) out.push(d);
+      d = addDays(d, 1);
+    }
+    return out;
+  }
+  function checkDate() {
+    var input = form.elements.pickup_date, box = $("#date-full");
+    var v = input.value;
+    if (!v || !fullDays[v]) { box.hidden = true; return true; }
+    var free = nextFreeDays(input.min > v ? input.min : v, input.max, 3);
+    box.innerHTML = "";
+    var p = document.createElement("p");
+    p.textContent = "Le " + dayFr(v) + " est complet. " + (free.length ? "Prochaines dates libres :" : "Plus aucune date libre sur cette période.");
+    box.appendChild(p);
+    var chips = document.createElement("div");
+    chips.className = "date-full__chips";
+    free.forEach(function (d) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = dayFr(d);
+      b.addEventListener("click", function () { input.value = d; checkDate(); });
+      chips.appendChild(b);
+    });
+    box.appendChild(chips);
+    box.hidden = false;
+    return false;
+  }
+  form.elements.pickup_date.addEventListener("change", checkDate);
+
   function openOrder(min, max, hint) {
     var dateInput = form.elements.pickup_date;
     dateInput.min = min;
@@ -343,6 +388,8 @@
     $("#date-hint").innerHTML = hint;
     if (!dateInput.value || dateInput.value < min || (max && dateInput.value > max)) dateInput.value = "";
     $("#form-error").hidden = true;
+    $("#date-full").hidden = true;
+    loadFullDays(min, max || addDays(min, 120));
     renderRecap();
     dlg.showModal();
   }
@@ -372,6 +419,7 @@
     if (!f.pickup_date.value) return showError("Choisissez une date.");
     if (f.pickup_date.value < f.pickup_date.min) return showError("La date doit être au plus tôt le " + dayFr(f.pickup_date.min) + ".");
     if (f.pickup_date.max && f.pickup_date.value > f.pickup_date.max) return showError("La date doit être au plus tard le " + dayFr(f.pickup_date.max) + ".");
+    if (!checkDate()) return showError("Ce jour est complet : choisissez une des dates proposées.");
     if (!f.consent.checked) return showError("Merci de cocher la case de confirmation.");
 
     if (!C.SUPABASE_URL || C.SUPABASE_URL.indexOf("VOTRE") !== -1) {

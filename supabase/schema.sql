@@ -212,3 +212,22 @@ update public.products set sort = 6 where id = 'boudin-creole';
 update public.products set sort = 7 where id = 'boudin-morue';
 update public.products set sort = 8 where id = 'boudin-poulet';
 update public.products set sort = 9 where id = 'boudin-crevette';
+
+
+create or replace function public.full_days(d_from date, d_to date)
+returns setof date
+language sql stable security definer set search_path = public as $$
+  select pickup_date
+  from public.orders
+  where pickup_date between d_from and d_to
+    and (
+      status in ('confirmee', 'prete', 'recuperee')
+      -- une commande en cours de paiement réserve sa place pendant 1 h
+      or (status = 'attente_paiement' and created_at > now() - interval '1 hour')
+    )
+  group by pickup_date
+  having count(*) >= 3   -- ← nombre maximum de retraits par jour
+$$;
+
+-- Le site peut savoir quels jours sont complets (sans voir aucune commande)
+grant execute on function public.full_days(date, date) to anon, authenticated;

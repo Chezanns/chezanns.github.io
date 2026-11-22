@@ -90,6 +90,11 @@ Deno.serve(async (req) => {
       return fail(`Les commandes se font au moins ${LEAD_DAYS * 24} h avant la date de retrait.`);
     }
     if (!SLOTS.includes(pickup_slot)) return fail("Créneau invalide.");
+    // Limite de retraits par jour (réglée dans la fonction SQL full_days)
+    const { data: full } = await supabase.rpc("full_days", { d_from: pickup_date, d_to: pickup_date });
+    if (Array.isArray(full) && full.length) {
+      return fail(`Le ${dateFr(pickup_date)} est complet, merci de choisir une autre date.`);
+    }
     const pay_full = b.pay_full === true;
     const customer = { customer_name, phone, email, notes: notes || null, pickup_date, pickup_slot };
 
