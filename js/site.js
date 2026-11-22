@@ -461,6 +461,7 @@
 
   function qtyLabel(p, q) {
     if (p.unit === "kg") return q < 1000 ? q + " g" : (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg";
+    if (p.unit === "litre") return q + " L";
     return q + " pièce" + (q > 1 ? "s" : "");
   }
   function linePrice(p, q) { return p.unit === "kg" ? Math.round(p.price * q / 10) / 100 : Math.round(p.price * q * 100) / 100; }
@@ -510,7 +511,7 @@
         var el = document.createElement("div");
         el.className = "noel-item";
         el.dataset.id = p.id;
-        var price = p.unit === "kg" ? euros(p.price) + " le kilo" : euros(p.price) + " la pièce";
+        var price = euros(p.price) + (p.unit === "kg" ? " le kilo" : p.unit === "litre" ? " le litre" : " la pièce");
         el.innerHTML =
           (p.img ? '<button type="button" class="noel-item__img" data-zoom><img alt="" loading="lazy"></button>' : "") +
           '<div class="noel-item__txt">' +
@@ -533,7 +534,7 @@
           $(".noel-item__img", el).dataset.large = p.imgLarge || p.img;
         }
         if (p.desc) $(".noel-item__desc", el).textContent = p.desc;
-        $(".noel-item__price", el).textContent = price + " · min. " + qtyLabel(p, p.min);
+        $(".noel-item__price", el).textContent = price + (p.min > 1 ? " · min. " + qtyLabel(p, p.min) : "");
         $('[data-step="-1"]', el).setAttribute("aria-label", "Retirer " + p.name);
         $('[data-step="1"]', el).setAttribute("aria-label", "Ajouter " + p.name);
         box.appendChild(el);

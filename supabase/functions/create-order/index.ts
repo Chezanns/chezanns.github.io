@@ -60,7 +60,7 @@ const dateFr = (iso: string) =>
 const qtyLabel = (unit: string, q: number) =>
   unit === "kg"
     ? (q < 1000 ? `${q} g` : (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg")
-    : `${q} pièce${q > 1 ? "s" : ""}`;
+    : unit === "litre" ? `${q} L` : `${q} pièce${q > 1 ? "s" : ""}`;
 const makeRef = () => {
   const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "";

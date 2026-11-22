@@ -300,7 +300,7 @@
     $("#prep-boxes").hidden = kind === "noel" && noelKeys.length > 0;
     $("#prep-noel").innerHTML = noelKeys.map(function (k) {
       var p = k.split("|"), unit = p[1], lvl = Number(p[2]), q = byNoel[k];
-      var qty = unit === "kg" ? (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : q + " pc";
+      var qty = unit === "kg" ? (q / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : unit === "litre" ? q + " L" : q + " pc";
       return '<div class="prep__row"><span class="prep__box">' + esc(p[0]) +
         (lvl >= 0 ? '<small><span class="prep__chilis">' + chilis(lvl) + "</span>" + SPICE_LABELS[lvl] + (p[3] ? " · " + esc(p[3]) : "") + "</small>" : "") +
         "</span><b>" + qty + "</b></div>";

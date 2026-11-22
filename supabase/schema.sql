@@ -182,3 +182,17 @@ update public.items set price_cents = 150 where id in ('accras-morue', 'accras-c
 update public.items set price_cents = 250 where id in ('dize-mile', 'navette-poulet-fume', 'verrine-guacamole');
 -- Gamme premium : 4 €
 update public.items set price_cents = 400 where id in ('mini-bokit-poulet', 'mini-bokit-morue', 'mini-bokit-steak', 'sandwich-madras');
+
+
+-- Les produits peuvent maintenant être vendus au litre
+alter table public.products drop constraint if exists products_unit_check;
+alter table public.products add constraint products_unit_check check (unit in ('piece', 'kg', 'litre'));
+
+insert into public.products (id, name, description, unit, price_cents, min_qty, step, is_boudin, sort) values
+  ('pain-beurre',     'Pain au beurre en couronne', 'Pour 8 à 10 personnes',                 'piece', 800,  1, 1, false, 3),
+  ('chocolat-creole', 'Chocolat créole',            'Le chocolat chaud des fêtes antillaises', 'litre', 1000, 1, 1, false, 4)
+on conflict (id) do update set name = excluded.name, description = excluded.description, unit = excluded.unit,
+  price_cents = excluded.price_cents, min_qty = excluded.min_qty, step = excluded.step, sort = excluded.sort, active = true;
+
+-- Les boudins passent après les douceurs
+update public.products set sort = sort + 2 where is_boudin and sort < 10;
