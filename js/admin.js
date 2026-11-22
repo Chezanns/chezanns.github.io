@@ -4,7 +4,7 @@
   var C = window.CHEZ_ANNS_CONFIG || {};
   var $ = function (s) { return document.querySelector(s); };
   var DEMO = new URLSearchParams(location.search).has("demo");
-  var PIECES = { decouverte: 20, signature: 35, prestige: 60 }; // pièces par box
+  var PIECES = { decouverte: 20, signature: 45, prestige: 70 }; // pièces par box
 
   var sb = null;
   var orders = [];
@@ -55,7 +55,7 @@
   function demoData() {
     var t = today(), n = 0;
     var o = function (d, slot, box, qty, name, phone, items, status, extra) {
-      var price = { decouverte: 3000, signature: 6500, prestige: 12000 }[box] || null;
+      var price = { decouverte: 3000, signature: 6500, prestige: 10000 }[box] || null;
       return Object.assign({
         id: Math.random().toString(36).slice(2), ref: "CA-" + Math.random().toString(36).slice(2, 7).toUpperCase(),
         pickup_date: addDays(t, d), pickup_slot: slot, box_id: box,

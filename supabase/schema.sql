@@ -96,8 +96,8 @@ create policy "admin se voit" on public.admins
 -- ── Données de départ ──────────────────────────────────────
 insert into public.boxes (id, name, pieces, max_varieties, price_cents, only_univers, sort) values
   ('decouverte', 'Box Découverte',   20, 5, 3000,  null,       1),
-  ('signature',  'Box Signature',    35, 7, 6500,  null,       2),
-  ('prestige',   'Box Prestige',     60, 6, 12000, null,       3),
+  ('signature',  'Box Signature',    45, 7, 6500,  null,       2),
+  ('prestige',   'Box Prestige',     70, 6, 10000, null,       3),
   ('caraibes',   'Box Caraïbes',   null, 5, null,  'caraibes', 4)
 on conflict (id) do update set
   name = excluded.name, pieces = excluded.pieces, max_varieties = excluded.max_varieties,
