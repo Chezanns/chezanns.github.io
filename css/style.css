@@ -305,3 +305,5 @@ main,.footer{overflow-x:clip}
 }
 .state-ic{width:18px;height:18px;fill:none;stroke:#1E5B44;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #noel-state{margin-top:8px}
+.cold-note{margin:0;display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#1E4A38;background:#E8F2EC;border-left:3px solid #1E5B44;padding:8px 12px;border-radius:8px}
+.cold-note .state-ic{flex-shrink:0;margin-top:2px}

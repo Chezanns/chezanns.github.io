@@ -111,6 +111,7 @@ async function sendConfirmation(o: any) {
 <p>Annie s'occupe de la préparer avec amour pour le jour du retrait.</p>
 ${recap(o)}
 <p style="background:#F7B52A;border-radius:12px;padding:12px 14px;margin:0 0 14px"><b>Et ensuite ?</b> Vous recevrez un second e-mail dès que votre commande sera prête, avec l'adresse exacte de retrait.</p>
+<p style="background:#E8F2EC;border-radius:12px;padding:12px 14px;margin:0 0 14px">❄️ <b>Chaîne du froid :</b> pensez à venir avec un <b>sac isotherme</b>${(o.lines ?? []).some((l: { boudin?: boolean; fresh?: boolean }) => l.boudin && !l.fresh) ? " ou une glacière pour vos boudins congelés" : ""}.</p>
 <p style="font-size:13px;color:#6B4E3D">Annulation : l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant la date de retrait prévue.</p>
 <p>Une question ? Répondez simplement à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
 <p>À très vite,<br><b>Annie — Chez Ann's</b></p>`;

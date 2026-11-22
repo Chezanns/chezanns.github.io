@@ -108,6 +108,7 @@ ${note ? `<div style="font-size:14px;color:#4A3427;white-space:pre-line">${esc(n
 <p>${rest > 0
     ? `Il vous restera <b>${eur(rest)}</b> à régler au moment du retrait.`
     : "Tout est déjà réglé, vous n'avez plus qu'à venir la chercher."}</p>
+<p style="background:#E8F2EC;border-radius:12px;padding:12px 14px;margin:0 0 14px">❄️ <b>N'oubliez pas votre sac isotherme</b>${(o.lines ?? []).some((l: { boudin?: boolean; fresh?: boolean }) => l.boudin && !l.fresh) ? " (ou une glacière pour les boudins congelés)" : ""} et mettez votre commande au frais dès votre retour.</p>
 <p style="font-size:14px;color:#4A3427">Référence : <b>${esc(o.ref)}</b>${
     o.kind === "noel" && !(o.lines ?? []).some((l: { boudin?: boolean }) => l.boudin) ? "" : ` · Épices : ${esc(SPICE_LABELS[o.spice ?? 0])}`}</p>
 <p>Un empêchement ? Répondez à cet e-mail${phone ? ` ou appelez le <b>${esc(phone)}</b>` : ""}.</p>
