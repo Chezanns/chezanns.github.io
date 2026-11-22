@@ -41,8 +41,14 @@
     var r = $('input[name="spice"]:checked');
     return r ? Number(r.value) : null;
   }
-  $$('input[name="spice"]').forEach(function (r) {
-    r.addEventListener("change", function () { $("#spice").classList.remove("is-missing"); });
+  // Le même choix d'épices est proposé sous les Classiques et sous les Caraïbes : les deux restent synchronisés
+  $$('input[name="spice"], input[name="spice_caraibes"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      var other = r.name === "spice" ? "spice_caraibes" : "spice";
+      var twin = $('input[name="' + other + '"][value="' + r.value + '"]');
+      if (twin) twin.checked = true;
+      $$(".menu .spice-mini").forEach(function (g) { g.classList.remove("is-missing"); });
+    });
   });
 
   // ── Choix de la box ──────────────────────────────────────
@@ -204,11 +210,12 @@
     if (!state.box || !selectedItems().length) return;
     state.mode = "box";
     if (getSpice() === null) {
-      var sp = $("#spice");
-      sp.classList.remove("is-missing");
-      void sp.offsetWidth; // relance l'animation
-      sp.classList.add("is-missing");
-      sp.scrollIntoView({ behavior: "smooth", block: "center" });
+      $$(".menu .spice-mini").forEach(function (g) {
+        g.classList.remove("is-missing");
+        void g.offsetWidth; // relance l'animation
+        g.classList.add("is-missing");
+      });
+      $(state.box.only === "caraibes" ? "#spice-caraibes" : "#spice").scrollIntoView({ behavior: "smooth", block: "center" });
       toast("Choisissez le niveau d'épices de votre box.");
       return;
     }
@@ -324,7 +331,7 @@
 
   function resetAll() {
     checks.forEach(function (c) { c.checked = false; c.disabled = false; });
-    $$('input[name="spice"]').forEach(function (r) { r.checked = false; });
+    $$('input[name="spice"], input[name="spice_caraibes"]').forEach(function (r) { r.checked = false; });
     cards.forEach(function (c) { c.classList.remove("is-selected"); $(".pill", c).setAttribute("aria-pressed", "false"); });
     $(".menu--classique").classList.remove("is-locked");
     state.box = null; state.qty = 1;
