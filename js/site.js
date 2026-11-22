@@ -182,8 +182,8 @@
     $("#date-label").textContent = quote ? "Date souhaitée *" : "Date de retrait *";
     $("#submit-btn").textContent = quote ? "Envoyer ma demande de devis" : payFull() ? "Payer et réserver" : "Payer l'acompte et réserver";
     $("#consent-text").textContent = quote
-      ? "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") + " et qu'Annie me recontacte avec un devis."
-      : "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
+      ? "J'accepte les conditions générales de vente et j'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") + " et qu'Annie me recontacte avec un devis."
+      : "J'accepte les conditions générales de vente et j'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
         (payFull() ? "" : ", que le solde est à régler sur place") +
         " et que l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant le retrait.";
     $("#cancel-note").hidden = quote;
@@ -515,7 +515,7 @@
     $("#recap-rest").textContent = euros(Math.round((total - dep) * 100) / 100);
     $("#recap-full").textContent = euros(total);
     $("#submit-btn").textContent = payFull() ? "Payer et réserver" : "Payer l'acompte et réserver";
-    $("#consent-text").textContent = "J'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
+    $("#consent-text").textContent = "J'accepte les conditions générales de vente et j'ai bien noté que le retrait se fait en " + (C.PICKUP_PLACE || "Essonne (91)") +
       (payFull() ? "" : ", que le solde est à régler sur place") +
       " et que l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant le retrait.";
     $("#cancel-note").hidden = false;

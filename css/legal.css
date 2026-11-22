@@ -1,0 +1,30 @@
+/* Chez Ann's — pages CGV et mentions légales */
+.legal-top{max-width:880px;margin:0 auto;padding:22px 20px 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.legal-top a.back{font-weight:700;text-decoration:none;padding:10px 0}
+.legal{max-width:880px;margin:0 auto;padding:10px 20px 70px}
+.legal h1{font-family:var(--script);font-weight:400;color:var(--red);font-size:clamp(48px,7vw,72px);line-height:1;margin:18px 0 6px}
+.legal .updated{color:#6B4E3D;font-size:14px;margin:0 0 26px}
+.legal nav.toc{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:16px 20px;margin:0 0 30px}
+.legal nav.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:28px}
+.legal nav.toc li{margin:3px 0;break-inside:avoid}
+.legal section{background:var(--card);border:1px solid #EBD5BB;border-radius:18px;padding:20px 22px;margin:0 0 16px}
+.legal h2{margin:0 0 10px;font-size:20px;color:var(--ink)}
+.legal h2 span{color:var(--red);margin-right:6px}
+.legal p,.legal li{font-size:16px;line-height:1.6}
+.legal p{margin:0 0 10px}
+.legal ul{margin:0 0 10px;padding-left:20px}
+.legal table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:15px}
+.legal th,.legal td{text-align:left;padding:8px 10px;border-bottom:1px solid #EBD5BB;vertical-align:top}
+.legal th{background:#FBEADA}
+.legal .table-wrap{overflow-x:auto}
+.legal dl{display:grid;grid-template-columns:minmax(140px,max-content) 1fr;gap:6px 16px;margin:0}
+.legal dt{font-weight:700;color:#6B4E3D}
+.legal dd{margin:0}
+.todo{background:#FFE7A8;border-bottom:2px dashed #C98A00;padding:0 4px;border-radius:4px;font-weight:700}
+@media (max-width:640px){
+  .legal nav.toc ol{columns:1}
+  .legal section{padding:16px 14px}
+  .legal dl{grid-template-columns:1fr}
+  .legal dt{margin-top:6px}
+}
+@media print{.legal-top,.legal nav.toc{display:none}.legal section{border:0;padding:0}}
