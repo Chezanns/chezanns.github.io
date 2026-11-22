@@ -94,7 +94,7 @@ async function sendReady(o: any) {
   const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
   const body = `
 <p>Bonjour ${esc(o.customer_name)},</p>
-<p>Bonne nouvelle : votre <b>${o.kind === "noel" ? "commande de Noël" : esc(o.box_name) + (o.qty > 1 ? " × " + esc(o.qty) : "")}</b> est <b>prête</b> !</p>
+<p>Bonne nouvelle : votre <b>${o.kind === "noel" ? "commande de Noël" : esc(o.box_name) + (o.guests ? " (" + esc(o.guests) + " personnes)" : o.qty > 1 ? " × " + esc(o.qty) : "")}</b> est <b>prête</b> !</p>
 ${o.kind === "noel" ? `<p style="font-size:14px;color:#4A3427">${(o.items ?? []).map(esc).join(" · ")}</p>` : ""}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #EBD5BB;border-radius:14px;margin:16px 0">
 <tr><td style="padding:16px">

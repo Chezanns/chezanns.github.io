@@ -8,7 +8,25 @@ window.CHEZ_ANNS_CONFIG = {
 
   // Affichage uniquement : le vrai calcul est fait côté serveur
   // (variable DEPOSIT_PERCENT de la fonction create-order). Garder la même valeur.
-  DEPOSIT_PERCENT: 30,
+  DEPOSIT_PERCENT: 50,
+
+  // ── Box Caraïbes composée sur mesure ── (garder les mêmes valeurs dans create-order et la table items)
+  CARAIBES: {
+    PIECES_PER_PERSON: 6,
+    MIN_PERSONS: 6,
+    MAX_PERSONS: 150,
+    DEFAULT_PERSONS: 10,
+    STEP: 6,               // ajustement par 6 pièces (= 1 personne)
+    BIG_PIECES: 240,       // au-delà de 240 pièces…
+    BIG_LEAD_DAYS: 5,      // …5 jours de préparation minimum
+    CONTACT_EMAIL: "chezanns.commandes@gmail.com",
+    // prix à la pièce : simple 1,50 € · élaborée 2,50 € · premium 4 €
+    PRICES: {
+      "accras-morue": 1.5, "accras-crevette": 1.5, "samoussa-thon": 1.5, "samoussa-legumes": 1.5, "kalawang": 1.5,
+      "dize-mile": 2.5, "navette-poulet-fume": 2.5, "verrine-guacamole": 2.5,
+      "mini-bokit-poulet": 4, "mini-bokit-morue": 4, "mini-bokit-steak": 4, "sandwich-madras": 4
+    }
+  },
 
   // Nombre de jours minimum entre la commande et le retrait
   // (garder la même valeur que LEAD_DAYS côté serveur)

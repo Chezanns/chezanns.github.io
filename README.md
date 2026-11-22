@@ -35,7 +35,7 @@ supabase link --project-ref VOTRE_REF_PROJET
 
 supabase secrets set STRIPE_SECRET_KEY=sk_test_xxx
 supabase secrets set SITE_URL=https://VOTRE-COMPTE.github.io/chez-anns/
-supabase secrets set DEPOSIT_PERCENT=30
+supabase secrets set DEPOSIT_PERCENT=50
 supabase secrets set LEAD_DAYS=3
 
 supabase functions deploy create-order
@@ -83,6 +83,11 @@ La fonction `notify-ready` garde « Enforce JWT verification » activé.
   `NOEL_DEPOSIT_PERCENT` (50), `NOEL_LAST_ORDER_DAY` (2026-12-11), `NOEL_FIRST_PICKUP` (2026-12-14), `NOEL_LAST_PICKUP` (2026-12-22), `NOEL_MAX_BOUDIN_G` (10000).
 - La rubrique disparaît toute seule du site après le dernier jour de retrait (ou mettre `ENABLED: false`).
 - Installation : lancer `supabase/noel.sql`, puis redéployer `create-order`, `stripe-webhook` et `notify-ready`.
+
+## Box Caraïbes sur mesure
+
+- Prix à la pièce : colonne `price_cents` de la table `items` (lancer `supabase/caraibes-prix.sql`) **et** `CARAIBES.PRICES` dans `js/config.js`.
+- 6 personnes minimum, 6 pièces par personne, ajustements par 6 pièces, 150 personnes maximum, 5 jours de préparation au-delà de 240 pièces.
 
 ---
 

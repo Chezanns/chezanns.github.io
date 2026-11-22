@@ -307,3 +307,31 @@ main,.footer{overflow-x:clip}
 #noel-state{margin-top:8px}
 .cold-note{margin:0;display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#1E4A38;background:#E8F2EC;border-left:3px solid #1E5B44;padding:8px 12px;border-radius:8px}
 .cold-note .state-ic{flex-shrink:0;margin-top:2px}
+
+/* ── Box Caraïbes sur mesure ── */
+.carib-persons{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:#FFF1D6;border:1.5px solid var(--border);border-radius:16px;padding:10px 12px;margin-bottom:10px}
+.carib-persons__txt{display:flex;flex-direction:column;line-height:1.25}
+.carib-persons__txt small{color:#6B4E3D;font-size:13px}
+.carib-help{margin:0 0 6px;font-size:14px;color:#6B4E3D}
+.carib-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;justify-content:space-between}
+.carib-row>label{flex:1 1 200px}
+.carib-price{display:none;font-size:13px;font-weight:800;color:var(--red);white-space:nowrap}
+.carib-row .stepper{display:none}
+.carib-row .stepper button{width:38px;height:38px;font-size:20px}
+.carib-row .stepper output{min-width:52px;font-size:14px}
+.menus.is-carib .carib-price{display:inline}
+.menus.is-carib .carib-row.is-on .stepper{display:flex}
+.menus.is-carib .carib-row.is-on .carib-price{display:none}
+.carib-total{margin-top:12px;padding-top:12px;border-top:1.5px dashed var(--border);display:flex;flex-direction:column;gap:4px}
+.carib-total__line{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:700}
+.carib-total__line strong{font-size:24px;color:var(--red)}
+.carib-total__sub{font-size:14px;color:#6B4E3D}
+.carib-total__sub.is-warn{color:#8E1620;font-weight:700}
+.carib-total__contact{font-size:13px;font-weight:700;margin-top:4px}
+/* Box Caraïbes choisie : l'encadré Caraïbes passe en premier, sur toute la largeur */
+.menus.is-carib .menu--caraibes{order:1;flex:1 1 100%}
+.menus.is-carib .menu--classique{order:2;flex:1 1 100%}
+.menus.is-carib .menu--caraibes .menu__col{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:2px 32px}
+.carib-row .stepper{flex:0 0 auto}
+.carib-persons{max-width:560px}
+@media (max-width:760px){.menus.is-carib .menu--caraibes .menu__col{grid-template-columns:1fr}}

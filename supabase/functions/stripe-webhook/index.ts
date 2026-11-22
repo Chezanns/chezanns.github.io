@@ -53,7 +53,7 @@ ${row("Référence", esc(o.ref))}
 ${o.kind === "noel"
     ? row("Commande", "Commande de Noël") + row("Produits", (o.items ?? []).map(esc).join("<br>")) +
       ((o.lines ?? []).some((l: { boudin?: boolean }) => l.boudin) ? row("Épices des boudins", esc(SPICE_LABELS[o.spice ?? 0])) : "")
-    : row("Box", `${esc(o.box_name)} × ${esc(o.qty)}`) + row("Mignardises", (o.items ?? []).map(esc).join("<br>")) +
+    : row("Box", o.guests ? `${esc(o.box_name)} · ${esc(o.guests)} personnes` : `${esc(o.box_name)} × ${esc(o.qty)}`) + row("Mignardises", (o.items ?? []).map(esc).join("<br>")) +
       row("Épices", esc(SPICE_LABELS[o.spice ?? 0]))}
 ${row("Retrait", `${esc(dateFr(o.pickup_date))}<br>${esc(o.pickup_slot)}`)}
 ${row("Déjà payé", eur(o.deposit_cents ?? 0))}

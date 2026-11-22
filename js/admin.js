@@ -82,7 +82,10 @@
         items: ["Comtesses — 24 pièces", "Boudin de crevette — 1,5 kg (frais)"],
         lines: [{ name: "Comtesses", unit: "piece", qty: 24, boudin: false }, { name: "Boudin de crevette", unit: "kg", qty: 1500, boudin: true, fresh: true }]
       }),
-      o(9, "14h – 16h", "caraibes", 1, "Fabrice Delage", "07 82 63 14 50", ["Accras de morue", "Mini bokit poulet", "Dizé milé salé au poulet", "Verrine guacamole", "Kalawang (salade de mangue)"], "devis", { guests: 40, notes: "Pour un mariage, on peut en parler ?" })
+      o(9, "14h – 16h", "caraibes", 1, "Fabrice Delage", "07 82 63 14 50", ["Accras de morue × 18", "Mini bokit poulet × 12", "Dizé milé salé au poulet × 12", "Verrine guacamole × 12", "Kalawang (salade de mangue) × 12"], "confirmee", {
+        guests: 11, total_cents: 15300, deposit_cents: 7650, deposit_paid: true,
+        lines: [{ name: "Accras de morue", qty: 18 }, { name: "Mini bokit poulet", qty: 12 }, { name: "Dizé milé salé au poulet", qty: 12 }, { name: "Verrine guacamole", qty: 12 }, { name: "Kalawang (salade de mangue)", qty: 12 }]
+      })
     ];
   }
 
@@ -249,7 +252,7 @@
     return '<article class="order' + cls + '" data-id="' + esc(o.id) + '">' +
       '<div class="order__time"><small>' + (o.status.indexOf("devis") === 0 ? "Souhaité" : "Retrait") + "</small><strong>" + esc(o.pickup_slot) + "</strong></div>" +
       '<div class="order__body">' +
-        '<div class="order__title"><b>' + esc(o.box_name) + "</b>" + (o.guests || isNoel ? "" : '<span class="qty">× ' + esc(o.qty) + "</span>") + '<span class="ref">' + esc(o.ref) + "</span></div>" +
+        '<div class="order__title"><b>' + esc(o.box_name) + "</b>" + (isNoel ? "" : o.guests ? '<span class="qty">' + esc(o.guests) + " pers.</span>" : '<span class="qty">× ' + esc(o.qty) + "</span>") + '<span class="ref">' + esc(o.ref) + "</span></div>" +
         '<div class="order__client">' + esc(o.customer_name) + ' · <a href="' + esc(telHref(o.phone)) + '">' + esc(o.phone) + "</a></div>" +
         '<div class="chips">' + (o.items || []).map(function (i) { return '<span class="chip">' + esc(i) + "</span>"; }).join("") + "</div>" +
         '<div class="badges">' + badges + "</div>" +
@@ -276,6 +279,10 @@
       }
       var key = o.box_name + "|" + (Number(o.spice) || 0);
       byBox[key] = (byBox[key] || 0) + o.qty;
+      if (o.lines && o.lines.length) { // Box Caraïbes : quantités exactes
+        o.lines.forEach(function (l) { byItem[l.name] = (byItem[l.name] || 0) + Number(l.qty); });
+        return;
+      }
       var pieces = (PIECES[o.box_id] || 0) * o.qty;
       var n = (o.items || []).length;
       if (pieces && n) (o.items || []).forEach(function (i) { byItem[i] = (byItem[i] || 0) + pieces / n; });

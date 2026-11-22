@@ -1,6 +1,7 @@
 // Chez Ann's — création d'une commande (box ou boutique de Noël) + session de paiement Stripe (acompte ou totalité)
 // Secrets nécessaires : STRIPE_SECRET_KEY, SITE_URL
-// Optionnels : DEPOSIT_PERCENT (box, 30), LEAD_DAYS (3),
+// Optionnels : DEPOSIT_PERCENT (box, 50), LEAD_DAYS (3),
+//              CARAIBES_BIG_PIECES (240), CARAIBES_BIG_LEAD_DAYS (5), CARAIBES_MAX_PERSONS (150),
 //              NOEL_DEPOSIT_PERCENT (50), NOEL_LAST_ORDER_DAY (2026-12-11),
 //              NOEL_FIRST_PICKUP (2026-12-14), NOEL_LAST_PICKUP (2026-12-22), NOEL_MAX_BOUDIN_G (10000),
 //              NOEL_BIG_ORDER_G (8000), NOEL_BIG_LEAD_DAYS (5)
@@ -17,7 +18,14 @@ const supabase = createClient(
 );
 
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "").replace(/\/?$/, "/");
-const DEPOSIT_PERCENT = Number(Deno.env.get("DEPOSIT_PERCENT") ?? "30");
+const DEPOSIT_PERCENT = Number(Deno.env.get("DEPOSIT_PERCENT") ?? "50");
+// Box Caraïbes composée sur mesure (garder les mêmes valeurs que CARAIBES dans js/config.js)
+const CARAIBES_PIECES_PER_PERSON = 6;
+const CARAIBES_MIN_PERSONS = 6;
+const CARAIBES_MAX_PERSONS = Number(Deno.env.get("CARAIBES_MAX_PERSONS") ?? "150");
+const CARAIBES_STEP = 6;
+const CARAIBES_BIG_PIECES = Number(Deno.env.get("CARAIBES_BIG_PIECES") ?? "240");
+const CARAIBES_BIG_LEAD_DAYS = Number(Deno.env.get("CARAIBES_BIG_LEAD_DAYS") ?? "5");
 const LEAD_DAYS = Number(Deno.env.get("LEAD_DAYS") ?? "3");
 // Boutique de Noël (garder les mêmes valeurs que NOEL dans js/config.js)
 const NOEL_DEPOSIT_PERCENT = Number(Deno.env.get("NOEL_DEPOSIT_PERCENT") ?? "50");
@@ -175,7 +183,7 @@ Deno.serve(async (req) => {
       : [];
     if (ids.length < 1) return fail("Choisissez au moins une variété.");
     if (ids.length > box.max_varieties) return fail(`Maximum ${box.max_varieties} variétés pour cette box.`);
-    const { data: items } = await supabase.from("items").select("id,name,univers").in("id", ids).eq("active", true);
+    const { data: items } = await supabase.from("items").select("id,name,univers,price_cents").in("id", ids).eq("active", true);
     if (!items || items.length !== ids.length) return fail("Une des mignardises choisies n'est plus disponible.");
     if (box.only_univers && items.some((i) => i.univers !== box.only_univers)) {
       return fail("Cette box se compose uniquement de mignardises Caraïbes.");
@@ -189,6 +197,66 @@ Deno.serve(async (req) => {
 
     const ref = makeRef();
     const base = { ...customer, ref, kind: "box", box_id: box.id, box_name: box.name, items: itemNames, spice };
+
+    // ── Box Caraïbes : composée sur mesure, prix calculé à la pièce ──
+    if (box.id === "caraibes") {
+      const guests = Math.floor(Number(b.guests));
+      if (!(guests >= CARAIBES_MIN_PERSONS && guests <= CARAIBES_MAX_PERSONS)) {
+        return fail(`La Box Caraïbes se commande de ${CARAIBES_MIN_PERSONS} à ${CARAIBES_MAX_PERSONS} personnes.`);
+      }
+      const wanted = new Map<string, number>();
+      for (const l of Array.isArray(b.carib_lines) ? b.carib_lines.slice(0, 10) : []) wanted.set(str(l?.id, 60), Math.floor(Number(l?.qty)));
+      // deno-lint-ignore no-explicit-any
+      const lines: any[] = [];
+      let total_cents = 0, pieces = 0;
+      for (const id of ids) {
+        const it = items.find((i) => i.id === id)!;
+        const q = wanted.get(id) ?? 0;
+        if (it.price_cents == null) return fail(`${it.name} : prix non disponible.`);
+        if (!(q >= CARAIBES_STEP && q <= 600 && q % CARAIBES_STEP === 0)) return fail(`${it.name} : quantité par tranche de ${CARAIBES_STEP} pièces.`);
+        const line_cents = it.price_cents * q;
+        total_cents += line_cents; pieces += q;
+        lines.push({ id, name: it.name, unit: "piece", qty: q, line_cents });
+      }
+      if (pieces < CARAIBES_MIN_PERSONS * CARAIBES_PIECES_PER_PERSON) {
+        return fail(`Minimum ${CARAIBES_MIN_PERSONS * CARAIBES_PIECES_PER_PERSON} pièces (${CARAIBES_MIN_PERSONS} personnes).`);
+      }
+      if (pieces > CARAIBES_BIG_PIECES && pickup_date < addDays(parisToday(), CARAIBES_BIG_LEAD_DAYS)) {
+        return fail(`Au-delà de ${CARAIBES_BIG_PIECES} pièces, il faut compter ${CARAIBES_BIG_LEAD_DAYS} jours de préparation : choisissez une date à partir du ${dateFr(addDays(parisToday(), CARAIBES_BIG_LEAD_DAYS))}.`);
+      }
+      const deposit_cents = pay_full ? total_cents : Math.round((total_cents * DEPOSIT_PERCENT) / 100);
+      const rest = ((total_cents - deposit_cents) / 100).toFixed(2).replace(".", ",");
+      const { data: order, error } = await supabase.from("orders").insert({
+        ...base, qty: 1, guests, lines, items: lines.map((l) => `${l.name} × ${l.qty}`),
+        total_cents, deposit_cents, pay_full, status: "attente_paiement",
+      }).select("id").single();
+      if (error) throw error;
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer_email: email,
+        locale: "fr",
+        line_items: [{
+          quantity: 1,
+          price_data: {
+            currency: "eur",
+            unit_amount: deposit_cents,
+            product_data: {
+              name: pay_full ? `Box Caraïbes (${guests} pers.) — paiement complet` : `Acompte ${DEPOSIT_PERCENT} % — Box Caraïbes (${guests} pers.)`,
+              description: `${pieces} pièces : ` + lines.map((l) => `${l.name} × ${l.qty}`).join(", ") +
+                ` · ${SPICE_LABELS[spice]} · Retrait le ${dateFr(pickup_date)} (${pickup_slot}) · Réf. ${ref}` +
+                (pay_full ? " · Rien à régler au retrait" : ` · Solde de ${rest} € à régler au retrait`),
+            },
+          },
+        }],
+        metadata: { order_id: order.id, ref },
+        payment_intent_data: { metadata: { order_id: order.id, ref } },
+        expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+        success_url: `${SITE_URL}?commande=ok&ref=${ref}`,
+        cancel_url: `${SITE_URL}?commande=annulee`,
+      });
+      await supabase.from("orders").update({ stripe_session_id: session.id }).eq("id", order.id);
+      return json({ url: session.url });
+    }
 
     // ── Box sur devis : simple demande, pas de paiement ──
     if (box.price_cents === null) {

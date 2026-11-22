@@ -58,7 +58,8 @@
       name: card.dataset.name,
       price: card.dataset.price ? Number(card.dataset.price) : null,
       max: Number(card.dataset.max),
-      only: card.dataset.only || null
+      only: card.dataset.only || null,
+      custom: card.dataset.custom === "1"
     };
   }
 
@@ -84,6 +85,7 @@
       sel.slice(state.box.max).forEach(function (c) { c.checked = false; });
       toast("Cette box contient " + state.box.max + " variétés : on a gardé les " + state.box.max + " premières.");
     }
+    if (state.box.id === "caraibes") distributeCarib();
     updateStatus();
     if (scroll) $("#compose").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -110,7 +112,102 @@
     });
   });
 
+  // ── Box Caraïbes sur mesure ──────────────────────────────
+  var K = C.CARAIBES || {};
+  var KSTEP = K.STEP || 6, KPP = K.PIECES_PER_PERSON || 6;
+  var KMIN = K.MIN_PERSONS || 6, KMAX = K.MAX_PERSONS || 150;
+  state.carib = { persons: K.DEFAULT_PERSONS || 10, qty: {} };
+  var caribChecks = checks.filter(function (c) { return c.dataset.univers === "caraibes"; });
+
+  function isCarib() { return state.mode !== "noel" && !!state.box && state.box.id === "caraibes"; }
+  function caribSelected() { return caribChecks.filter(function (c) { return c.checked; }); }
+  function caribPieces() { return caribSelected().reduce(function (t, c) { return t + (state.carib.qty[c.value] || 0); }, 0); }
+  function caribTotal() {
+    return Math.round(caribSelected().reduce(function (t, c) { return t + (state.carib.qty[c.value] || 0) * (K.PRICES[c.value] || 0); }, 0) * 100) / 100;
+  }
+  function caribName(c) { return c.parentNode.textContent.trim(); }
+
+  // Chaque mignardise Caraïbes reçoit son prix et un sélecteur de quantité
+  caribChecks.forEach(function (c) {
+    var label = c.parentNode;
+    var row = document.createElement("div");
+    row.className = "carib-row";
+    row.dataset.id = c.value;
+    label.parentNode.insertBefore(row, label);
+    row.appendChild(label);
+    var price = document.createElement("span");
+    price.className = "carib-price";
+    price.textContent = euros(K.PRICES[c.value] || 0) + " / pièce";
+    row.appendChild(price);
+    var st = document.createElement("div");
+    st.className = "stepper";
+    st.innerHTML = '<button type="button" data-cstep="-1">−</button><output>0</output><button type="button" data-cstep="1">+</button>';
+    $('[data-cstep="-1"]', st).setAttribute("aria-label", "6 pièces de moins : " + caribName(c));
+    $('[data-cstep="1"]', st).setAttribute("aria-label", "6 pièces de plus : " + caribName(c));
+    row.appendChild(st);
+    c.addEventListener("change", function () {
+      if (isCarib()) { distributeCarib(); updateStatus(); }
+    });
+  });
+
+  // Répartit (nombre de personnes × 6) pièces entre les mignardises cochées, par tranches de 6
+  function distributeCarib() {
+    var sel = caribSelected();
+    state.carib.qty = {};
+    if (!sel.length) return;
+    var units = state.carib.persons * KPP / KSTEP;
+    var base = Math.floor(units / sel.length), rem = units % sel.length;
+    sel.forEach(function (c, i) { state.carib.qty[c.value] = Math.max(1, base + (i < rem ? 1 : 0)) * KSTEP; });
+  }
+
+  function renderCarib() {
+    var on = isCarib();
+    $(".menus").classList.toggle("is-carib", on);
+    $("#carib-persons").hidden = !on;
+    $("#carib-help").hidden = !on;
+    $("#carib-total").hidden = !on || !caribSelected().length;
+    if (!on) return;
+    $("#carib-n").textContent = state.carib.persons;
+    $("#carib-minus").disabled = state.carib.persons <= KMIN;
+    $("#carib-plus").disabled = state.carib.persons >= KMAX;
+    caribChecks.forEach(function (c) {
+      var row = c.closest(".carib-row");
+      var q = c.checked ? state.carib.qty[c.value] || 0 : 0;
+      row.classList.toggle("is-on", c.checked);
+      $("output", row).textContent = q + " pc";
+      $('[data-cstep="-1"]', row).disabled = q <= KSTEP;
+    });
+    var pieces = caribPieces(), total = caribTotal(), advised = state.carib.persons * KPP;
+    $("#carib-pieces").textContent = pieces + " pièces pour " + state.carib.persons + " personnes";
+    $("#carib-price").textContent = euros(total);
+    var sub = $("#carib-sub");
+    var msg = "soit " + euros(Math.round(total / state.carib.persons * 100) / 100) + " par personne";
+    var warn = false;
+    if (pieces !== advised) { msg += " · conseillé : " + advised + " pièces"; }
+    if (pieces < KMIN * KPP) { msg = "Minimum " + (KMIN * KPP) + " pièces (" + KMIN + " personnes)"; warn = true; }
+    else if (pieces > (K.BIG_PIECES || 240)) msg += " · plus de " + (K.BIG_PIECES || 240) + " pièces : " + (K.BIG_LEAD_DAYS || 5) + " jours de préparation";
+    sub.textContent = msg;
+    sub.classList.toggle("is-warn", warn);
+  }
+
+  function setPersons(n) {
+    state.carib.persons = Math.min(KMAX, Math.max(KMIN, n));
+    distributeCarib();
+    updateStatus();
+  }
+  $("#carib-minus").addEventListener("click", function () { setPersons(state.carib.persons - 1); });
+  $("#carib-plus").addEventListener("click", function () { setPersons(state.carib.persons + 1); });
+  $("#carib-list").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cstep]");
+    if (!b || !isCarib()) return;
+    var id = b.closest(".carib-row").dataset.id;
+    var q = (state.carib.qty[id] || 0) + Number(b.dataset.cstep) * KSTEP;
+    state.carib.qty[id] = Math.min(600, Math.max(KSTEP, q));
+    updateStatus();
+  });
+
   function updateStatus() {
+    renderCarib();
     var status = $("#compose-status");
     var bar = $("#cartbar");
     if (!state.box) {
@@ -124,8 +221,13 @@
     status.textContent = state.box.name + " : " + n + " / " + state.box.max + " variétés choisies" +
       (left > 0 ? " — encore " + left + " au choix" : " — c'est complet !");
     bar.hidden = false;
-    $("#cartbar-name").textContent = state.box.name + (state.box.price ? " · " + euros(state.box.price) : " · sur devis");
-    $("#cartbar-count").textContent = plural(n, "variété choisie", "variétés choisies") + " sur " + state.box.max;
+    if (isCarib()) {
+      $("#cartbar-name").textContent = state.box.name + " · " + (n ? euros(caribTotal()) : "dès 9 €/pers.");
+      $("#cartbar-count").textContent = plural(n, "variété", "variétés") + " · " + caribPieces() + " pièces pour " + state.carib.persons + " pers.";
+    } else {
+      $("#cartbar-name").textContent = state.box.name + (state.box.price ? " · " + euros(state.box.price) : " · sur devis");
+      $("#cartbar-count").textContent = plural(n, "variété choisie", "variétés choisies") + " sur " + state.box.max;
+    }
     $("#cartbar-go").disabled = n === 0;
     syncBars();
   }
@@ -133,7 +235,7 @@
   // ── Fenêtre de commande ──────────────────────────────────
   var dlg = $("#order-dialog");
   var form = $("#order-form");
-  var pct = Number(C.DEPOSIT_PERCENT || 30);
+  var pct = Number(C.DEPOSIT_PERCENT || 50);
 
   // Créneaux + infos de retrait
   var slotSelect = $("#slot-select");
@@ -154,20 +256,21 @@
     r.addEventListener("change", function () { renderRecap(); });
   });
 
-  function isQuote() { return state.mode !== "noel" && !!state.box && state.box.price === null; }
+  function isQuote() { return state.mode !== "noel" && !!state.box && state.box.price === null && !state.box.custom; }
 
   function renderRecap() {
     if (state.mode === "noel") return renderNoelRecap();
     $("#recap-pct").textContent = pct;
     $("#recap-spice").hidden = false;
     var b = state.box;
-    $("#recap-name").textContent = b.name;
+    var custom = isCarib();
+    $("#recap-name").textContent = custom ? b.name + " · " + state.carib.persons + " personnes" : b.name;
     $("#qty-value").textContent = state.qty;
     var list = $("#recap-items");
     list.innerHTML = "";
     selectedItems().forEach(function (c) {
       var li = document.createElement("li");
-      li.textContent = c.parentNode.textContent.trim();
+      li.textContent = c.parentNode.textContent.trim() + (custom ? " × " + (state.carib.qty[c.value] || 0) : "");
       list.appendChild(li);
     });
     var spice = getSpice() || 0;
@@ -178,7 +281,7 @@
     $("#recap-spice").innerHTML = chilis + "<span>" + SPICE_LABELS[spice] + "</span>";
 
     var quote = isQuote();
-    $("#qty-wrap").hidden = quote;
+    $("#qty-wrap").hidden = quote || custom;
     $("#recap-money").hidden = quote;
     $("#recap-quote").hidden = !quote;
     $$(".quote-only", form).forEach(function (el) {
@@ -194,7 +297,7 @@
         " et que l'acompte n'est pas remboursable en cas d'annulation moins de 48 h avant le retrait.";
     $("#cancel-note").hidden = quote;
     if (!quote) {
-      var total = b.price * state.qty;
+      var total = custom ? caribTotal() : b.price * state.qty;
       var dep = Math.round(total * pct) / 100;
       $("#recap-total").textContent = euros(total);
       $("#recap-deposit").textContent = euros(dep);
@@ -219,8 +322,15 @@
       toast("Choisissez le niveau d'épices de votre box.");
       return;
     }
-    var min = addDays(parisToday(), Number(C.LEAD_DAYS || 3));
-    openOrder(min, "", "Commande au moins 72 h avant le retrait : premier jour possible le <strong>" + dayFr(min) + "</strong>.");
+    if (isCarib() && caribPieces() < KMIN * KPP) {
+      toast("La Box Caraïbes se commande à partir de " + (KMIN * KPP) + " pièces (" + KMIN + " personnes).");
+      return;
+    }
+    var big = isCarib() && caribPieces() > (K.BIG_PIECES || 240);
+    var min = addDays(parisToday(), big ? Number(K.BIG_LEAD_DAYS || 5) : Number(C.LEAD_DAYS || 3));
+    openOrder(min, "", (big
+      ? "Plus de " + (K.BIG_PIECES || 240) + " pièces : " + (K.BIG_LEAD_DAYS || 5) + " jours de préparation minimum, premier jour possible le <strong>"
+      : "Commande au moins 72 h avant le retrait : premier jour possible le <strong>") + dayFr(min) + "</strong>.");
   });
 
   function dayFr(iso, opts) {
@@ -284,7 +394,8 @@
       boudin_fresh: noelHasBoudin() && getNoelFresh()
     }, customer) : {
       box_id: state.box.id,
-      qty: isQuote() ? 1 : state.qty,
+      qty: isQuote() || isCarib() ? 1 : state.qty,
+      carib_lines: isCarib() ? caribSelected().map(function (c) { return { id: c.value, qty: state.carib.qty[c.value] }; }) : undefined,
       items: selectedItems().map(function (c) { return c.value; }),
       spice: getSpice(),
       pay_full: !isQuote() && payFull(),
@@ -294,7 +405,7 @@
       pickup_date: f.pickup_date.value,
       pickup_slot: f.pickup_slot.value,
       notes: f.notes.value.trim(),
-      guests: isQuote() ? Number(f.guests.value) : null
+      guests: isCarib() ? state.carib.persons : isQuote() ? Number(f.guests.value) : null
     };
 
     var btn = $("#submit-btn");
@@ -335,6 +446,7 @@
     cards.forEach(function (c) { c.classList.remove("is-selected"); $(".pill", c).setAttribute("aria-pressed", "false"); });
     $(".menu--classique").classList.remove("is-locked");
     state.box = null; state.qty = 1;
+    state.carib = { persons: K.DEFAULT_PERSONS || 10, qty: {} };
     form.reset();
     var dflt = $('input[name="pay_mode"][value="acompte"]');
     if (dflt) dflt.checked = true;

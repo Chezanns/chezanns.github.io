@@ -94,13 +94,13 @@
           <button type="button" class="pill" aria-pressed="false" aria-label="Choisir la Box Prestige, 120 €">120 €</button>
         </div>
       </article>
-      <article class="box-card" data-box="caraibes" data-name="Box Caraïbes" data-price="" data-max="5" data-only="caraibes">
+      <article class="box-card" data-box="caraibes" data-name="Box Caraïbes" data-price="" data-max="5" data-only="caraibes" data-custom="1">
         <img src="images/box-caraibes.jpg" alt="Box Caraïbes : bokits, pâtés et verrines créoles" loading="lazy">
         <div class="box-card__body">
           <span class="box-card__check" aria-hidden="true">✓ Choisie</span>
           <h3>Box Caraïbes</h3>
-          <p>5 variétés au choix<br>(parmi notre sélection Caraïbes)</p>
-          <button type="button" class="pill pill--small" aria-pressed="false" aria-label="Choisir la Box Caraïbes, sur devis">Sur devis</button>
+          <p>Sur mesure dès 6 personnes<br>5 variétés au choix · prix calculé en direct</p>
+          <button type="button" class="pill pill--small" aria-pressed="false" aria-label="Choisir la Box Caraïbes, dès 9 € par personne">dès 9 €/pers.</button>
         </div>
       </article>
     </div>
@@ -154,7 +154,19 @@
 
       <fieldset class="menu menu--caraibes" data-univers="caraibes">
         <legend>Nos mignardises Caraïbes</legend>
-        <div class="menu__col">
+        <div class="carib-persons" id="carib-persons" hidden>
+          <div class="carib-persons__txt">
+            <strong>Nombre de personnes</strong>
+            <small>6 pièces par personne · dès 6 personnes</small>
+          </div>
+          <div class="stepper">
+            <button type="button" id="carib-minus" aria-label="Une personne de moins">−</button>
+            <output id="carib-n" aria-live="polite">10</output>
+            <button type="button" id="carib-plus" aria-label="Une personne de plus">+</button>
+          </div>
+        </div>
+        <p class="carib-help" id="carib-help" hidden>Cochez jusqu'à 5 mignardises : les quantités se répartissent toutes seules, puis ajustez-les avec + et −.</p>
+        <div class="menu__col" id="carib-list">
           <label><input type="checkbox" value="accras-morue" data-univers="caraibes"> Accras de morue</label>
           <label><input type="checkbox" value="accras-crevette" data-univers="caraibes"> Accras de crevette</label>
           <label><input type="checkbox" value="mini-bokit-poulet" data-univers="caraibes"> Mini bokit poulet</label>
@@ -168,6 +180,11 @@
           <label><input type="checkbox" value="kalawang" data-univers="caraibes"> Kalawang (salade de mangue)</label>
           <label><input type="checkbox" value="verrine-guacamole" data-univers="caraibes"> Verrine guacamole</label>
         </div>
+      <div class="carib-total" id="carib-total" hidden>
+        <div class="carib-total__line"><span id="carib-pieces">0 pièce</span><strong id="carib-price">0 €</strong></div>
+        <div class="carib-total__sub" id="carib-sub"></div>
+        <a class="carib-total__contact" href="mailto:chezanns.commandes@gmail.com?subject=Grand%20%C3%A9v%C3%A9nement">Un mariage, plus de 150 personnes ? Contactez Annie</a>
+      </div>
       <div class="spice-mini" id="spice-caraibes" role="radiogroup" aria-labelledby="spice-caraibes-title">
           <span class="spice-mini__title" id="spice-caraibes-title">Niveau d'épices :</span>
           <label class="spice-mini__opt"><input type="radio" name="spice_caraibes" value="0"><span class="spice-mini__ic spice-mini__ic--off"><svg class="chili" aria-hidden="true"><use href="#chili"/></svg></span>Pas épicé</label>
