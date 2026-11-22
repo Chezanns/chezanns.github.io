@@ -345,3 +345,4 @@ main,.footer{overflow-x:clip}
 .modal--photo .modal__close{background:rgba(255,255,255,.9);top:10px;right:10px}
 @media (max-width:760px){.noel-item__img{width:64px;height:64px;border-radius:14px}}
 .noel-item .stepper{margin-left:auto}
+.modal--photo img{max-height:calc(100dvh - 40px);object-fit:contain;margin:0 auto}
