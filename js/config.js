@@ -36,7 +36,7 @@ window.CHEZ_ANNS_CONFIG = {
   SLOTS: ["10h – 12h", "14h – 16h", "17h – 19h"],
 
   // Texte affiché pour le lieu de retrait
-  PICKUP_PLACE: "Essonne (91)",
+  PICKUP_PLACE: "Corbeil-Essonnes (91)",
   PICKUP_INFO: "L'adresse exacte vous est envoyée par e-mail dès que votre box est prête.",
 
   // ── Boutique de Noël ── (garder les mêmes valeurs côté serveur : create-order)
